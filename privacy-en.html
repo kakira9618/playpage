@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PlayPage Privacy Policy (English)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px auto; max-width: 880px; padding: 0 16px; line-height: 1.6; color: #222; }
+      h1, h2 { color: #0b3d91; }
+      code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>PlayPage Privacy Policy (English)</h1>
+    <p><em>Last updated: January 22, 2026</em></p>
+    <p style="color:#b00;"><strong>Note:</strong> If there is any inconsistency between this English version and the Japanese version, the Japanese version prevails.</p>
+
+    <h2>1. What we collect</h2>
+    <ul>
+      <li><strong>Page content you choose to process</strong>: When you click “生成 / Generate”, the extension captures the HTML of the page you are viewing (trimmed if very large) and sends it to the selected provider (Gemini API or Vertex AI) to generate an app.</li>
+      <li><strong>Extension settings</strong>: API keys, model names, prompts, language, and per-site prompt settings are stored locally in <code>chrome.storage.local</code>.</li>
+      <li><strong>Generated artifacts</strong>: Generated app HTML, description, and history are stored locally in <code>chrome.storage.local</code>.</li>
+    </ul>
+
+    <h2>2. How we use the data</h2>
+    <ul>
+      <li>Page HTML is used only for the model request to the selected provider; the extension does not otherwise store or share it.</li>
+      <li>Settings and history stay on your device unless you explicitly export them.</li>
+    </ul>
+
+    <h2>3. Where data goes</h2>
+    <ul>
+      <li>Page HTML is sent over HTTPS to Google’s Gemini API (<code>api.google.dev</code>) or Vertex AI (<code>*.aiplatform.googleapis.com</code>), depending on your provider choice.</li>
+      <li>No other third parties receive your data.</li>
+    </ul>
+
+    <h2>4. Retention</h2>
+    <ul>
+      <li>The extension does not retain page HTML after the model call completes.</li>
+      <li>Settings and generation history remain in your browser until you delete or reset them (Options → Data Management).</li>
+    </ul>
+
+    <h2>5. Your choices</h2>
+    <ul>
+      <li>We ask for your consent once before sending page HTML. You can review or reset this consent in Options.</li>
+      <li>You may delete generation history or all stored data from Options at any time.</li>
+    </ul>
+
+    <h2>6. Security</h2>
+    <ul>
+      <li>Requests use HTTPS. Generated code runs inside a sandboxed <code>iframe</code> under a restrictive Content Security Policy.</li>
+    </ul>
+
+    <h2>7. Contact</h2>
+    <p>For questions or issues, contact: <a href="https://x.com/kakira9618">@kakira9618</a>.</p>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>PlayPage プライバシーポリシー</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px auto; max-width: 880px; padding: 0 16px; line-height: 1.6; color: #222; }
+      h1, h2 { color: #0b3d91; }
+      code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>PlayPage プライバシーポリシー</h1>
+    <p><em>最終更新日: 2026年1月22日</em></p>
+
+    <h2>1. 収集する情報</h2>
+    <ul>
+      <li><strong>ユーザーが処理を指示したページ内容</strong>: 「生成」を押すと、閲覧中ページのHTML（大きい場合はサイズ上限でトリム）を取得し、選択したプロバイダー（Gemini API または Vertex AI）へ送信してアプリを生成します。</li>
+      <li><strong>拡張機能の設定</strong>: APIキー、モデル名、プロンプト、言語、サイト別プロンプト設定は <code>chrome.storage.local</code> にローカル保存されます。</li>
+      <li><strong>生成物</strong>: 生成したアプリのHTML・説明・履歴を <code>chrome.storage.local</code> にローカル保存します。</li>
+    </ul>
+
+    <h2>2. 利用目的</h2>
+    <ul>
+      <li>ページHTMLは、選択したプロバイダーに対するモデル呼び出しのためだけに使用し、拡張機能側で別途保存・第三者提供は行いません。</li>
+      <li>設定と履歴はユーザーの端末上にのみ保持され、ユーザーが明示的にエクスポートした場合を除き外部に送信されません。</li>
+    </ul>
+
+    <h2>3. 送信先</h2>
+    <ul>
+      <li>ページHTMLは、選択したプロバイダーに応じて Google の Gemini API（<code>api.google.dev</code>）または Vertex AI（<code>*.aiplatform.googleapis.com</code>）へ HTTPS で送信されます。</li>
+      <li>上記以外の第三者へ送信することはありません。</li>
+    </ul>
+
+    <h2>4. 保持期間</h2>
+    <ul>
+      <li>ページHTMLはモデル呼び出し完了後、拡張機能側では保持しません。</li>
+      <li>設定と生成履歴は、ユーザーが削除またはリセットするまでブラウザ内に残ります（Options → データ管理 で削除可能）。</li>
+    </ul>
+
+    <h2>5. ユーザーの選択肢</h2>
+    <ul>
+      <li>ページHTML送信前に一度だけ同意を取得します。同意状況は Options で確認・リセットできます。</li>
+      <li>生成履歴や全データを Options からいつでも削除できます。</li>
+    </ul>
+
+    <h2>6. セキュリティ</h2>
+    <ul>
+      <li>通信は HTTPS を利用します。生成したコードはサンドボックス化された <code>iframe</code> 内で、CSPの基で実行されます。</li>
+    </ul>
+
+    <h2>7. 連絡先</h2>
+    <p>ご質問や問題がある場合は、X: <a href="https://x.com/kakira9618">@kakira9618</a> までお問い合わせください。</p>
+  </body>
+</html>

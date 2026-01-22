@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "PlayPage",
+  "short_name": "PlayPage",
+  "version": "1.0.0",
+  "description": "AI (Gemini) を使用して、Webページのコンテンツを即席アプリ化するChrome拡張機能です。",
+  "permissions": ["storage", "activeTab", "scripting", "identity"],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*",
+    "https://aiplatform.googleapis.com/*"
+  ],
+  "action": {
+    "default_title": "PlayPage",
+    "default_icon": {
+      "16": "img/icon-16.png",
+      "48": "img/icon-48.png",
+      "128": "img/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "img/icon-16.png",
+    "48": "img/icon-48.png",
+    "128": "img/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "img/icon-48.png",
+        "privacy.html",
+        "privacy-en.html",
+        "mathjax/tex-svg-full.js",
+        "mathjax/config.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
