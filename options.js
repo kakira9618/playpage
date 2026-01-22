@@ -1,5 +1,6 @@
 const STORAGE_KEY = "vm_settings_v1";
 const STORE_PREFIX = "vm_store_v1";
+const COST_HISTORY_KEY = "vm_cost_history_v1";
 const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform.read-only";
 
 // Current language (will be set on load)
@@ -34,6 +35,86 @@ function formatDateTime(ts) {
   } catch {
     return "";
   }
+}
+
+// コスト履歴を取得
+async function getCostHistory() {
+  const got = await storageGet(COST_HISTORY_KEY);
+  return got[COST_HISTORY_KEY] || { history: [] };
+}
+
+// 月ごとの累計コストを計算
+async function getMonthlyTotals() {
+  const costHistory = await getCostHistory();
+  const monthlyCosts = {};
+
+  for (const record of costHistory.history) {
+    const date = new Date(record.timestamp);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+
+    if (!monthlyCosts[monthKey]) {
+      monthlyCosts[monthKey] = {
+        totalCost: 0,
+        totalTokens: 0,
+        count: 0
+      };
+    }
+
+    monthlyCosts[monthKey].totalCost += record.totalCost || 0;
+    monthlyCosts[monthKey].totalTokens += record.totalTokens || 0;
+    monthlyCosts[monthKey].count++;
+  }
+
+  return monthlyCosts;
+}
+
+// 月間累計コスト表示を更新
+async function updateMonthlyCostDisplay() {
+  const el = document.getElementById("monthlyCostDisplay");
+  if (!el) return;
+
+  const monthlyCosts = await getMonthlyTotals();
+  const months = Object.keys(monthlyCosts).sort().reverse();
+
+  if (months.length === 0) {
+    el.innerHTML = `<div style="color:#666; font-size:13px;">${t("options.noCostHistory")}</div>`;
+    return;
+  }
+
+  let html = `<div style="font-size:13px; line-height:1.7;">`;
+
+  // 当月を強調表示
+  const currentMonth = new Date();
+  const currentMonthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
+
+  for (const month of months.slice(0, 12)) {
+    const data = monthlyCosts[month];
+    const isCurrent = month === currentMonthKey;
+    const [year, monthNum] = month.split("-");
+    const monthLabel = currentLang === "ja"
+      ? `${year}年${parseInt(monthNum)}月`
+      : `${year}-${monthNum}`;
+
+    html += `<div style="
+      display:flex;
+      justify-content:space-between;
+      padding:8px 12px;
+      margin-bottom:4px;
+      background:${isCurrent ? "rgba(0, 96, 206, 0.08)" : "#f8f9fa"};
+      border-radius:6px;
+      border:${isCurrent ? "1px solid rgba(0, 96, 206, 0.2)" : "1px solid #e8e8e8"};
+    ">
+      <span style="font-weight:${isCurrent ? "600" : "500"};">${monthLabel}</span>
+      <span style="font-weight:600; color:#0060CE;">$${data.totalCost.toFixed(6)}</span>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:8px; padding-top:8px; border-top:1px solid #e8e8e8; color:#666; font-size:12px;">`;
+  html += t("options.costEstimateNote");
+  html += `</div>`;
+
+  html += `</div>`;
+  el.innerHTML = html;
 }
 
 // Update all UI text based on current language
@@ -274,6 +355,9 @@ async function load() {
   renderSitePrompts();
 
   updatePrivacyUI(s);
+
+  // 月間コスト表示を更新
+  updateMonthlyCostDisplay();
 }
 
 async function save() {
@@ -350,6 +434,9 @@ async function changeLanguage() {
     sitePrompts = s.sitePrompts;
   }
   renderSitePrompts();
+
+  // 月間コスト表示を更新
+  updateMonthlyCostDisplay();
 
   setStatus(t("options.saved"), "ok");
 }

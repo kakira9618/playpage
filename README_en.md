@@ -27,6 +27,7 @@ No need to copy and paste into chat tools. Execute with one button, and everythi
 - **PDF / Math Aware**: Detects PDF pages, attaches the PDF binary to the AI request, and auto-injects MathJax to render LaTeX/MathML
 - **Interactive Improvement**: Enhance apps with additional instructions like "add animations" or "make it more interactive"
 - **Version Control**: Instantly switch between previously generated apps via dropdown
+- **Cost Management**: Automatically calculate and display token usage and estimated costs per generation, with monthly cumulative totals (estimates only)
 - **Site-Specific Customization**: Set dedicated prompts per URL (examples for AtCoder etc. provided by default)
 - **Multi-language Support**: UI and prompts available in Japanese and English
 - **Data & Privacy Management**: Edit prompts, back up/restore settings and history, export & wipe only history, and manage data-send consent after the first run
@@ -125,6 +126,19 @@ The following settings are available on the "Options" page:
 - **Export/Import all data**: Back up settings + generated history as JSON and restore anytime
 - **Export & delete history only**: Safely dump the history then wipe it; API keys and model settings remain
 - **Reset consent**: Check or reset the data-send consent status from the Options → Privacy section
+
+### 6. Cost Management
+This extension automatically estimates Gemini API usage costs and displays monthly cumulative totals.
+
+#### Features
+- **Per-Generation Cost Display**: Shows token usage and estimated cost (USD) for each app generation
+- **Monthly Totals**: The "Monthly Usage Cost" section in the side pane displays cumulative costs for up to the last 6 months
+- **History Tracking**: Automatically saves the date, model, token count, and cost for each generation
+
+#### About Cost Calculation
+- Costs are calculated based on the [Gemini API official documentation](https://ai.google.dev/gemini-api/docs/pricing) and [Vertex AI Pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
+- Different rates (per-token pricing for input and output) are applied for each model.
+- **Important**: These costs are **estimates only**. Please check the Google Cloud Console for accurate pricing.
 
 ---
 

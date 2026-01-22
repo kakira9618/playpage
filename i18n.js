@@ -103,6 +103,10 @@ const messages = {
     "options.exportCompleteDeleting": "エクスポート完了。履歴を削除中...",
     "options.historyDeleteComplete": "完了: {count}件の履歴データをエクスポート＆削除しました",
     "options.error": "エラー: {error}",
+    "options.monthlyCostTitle": "この拡張による月間利用料金",
+    "options.monthlyCostHint": "Gemini APIの利用料金の概算を月ごとに表示します。",
+    "options.noCostHistory": "コスト履歴がありません",
+    "options.costEstimateNote": "※ 料金は概算です。正確な料金はGoogle Cloudコンソールでご確認ください。",
 
     // Content script (side pane)
     "pane.title": "PlayPage",
@@ -138,6 +142,7 @@ const messages = {
     "pane.privacyDecline": "キャンセル",
     "pane.privacyPolicy": "プライバシーポリシーを表示",
     "pane.privacyRequired": "生成するにはデータ送信への同意が必要です。",
+    "pane.cost": "コスト",
 
     // Contest status (AtCoder)
     "contest.timeError": "コンテスト時刻の取得に失敗しました。安全のため利用を制限します。",
@@ -242,6 +247,10 @@ const messages = {
     "options.exportCompleteDeleting": "Export complete. Deleting history...",
     "options.historyDeleteComplete": "Complete: Exported and deleted {count} history entries",
     "options.error": "Error: {error}",
+    "options.monthlyCostTitle": "Monthly Usage Cost by This Extension",
+    "options.monthlyCostHint": "Displays estimated Gemini API usage costs by month.",
+    "options.noCostHistory": "No cost history available",
+    "options.costEstimateNote": "* Cost estimates are approximate. Please check the Google Cloud Console for accurate pricing.",
 
     // Content script (side pane)
     "pane.title": "PlayPage",
@@ -277,6 +286,7 @@ const messages = {
     "pane.privacyDecline": "Cancel",
     "pane.privacyPolicy": "View privacy policy",
     "pane.privacyRequired": "Consent is required before sending data.",
+    "pane.cost": "Cost",
 
     // Contest status (AtCoder)
     "contest.timeError": "Failed to get contest time. Usage is restricted for safety.",

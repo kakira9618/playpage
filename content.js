@@ -8,6 +8,7 @@ if (window.__VM_CONTENT_LOADED__) {
 
 const SETTINGS_KEY = "vm_settings_v1";
 const STORE_PREFIX = "vm_store_v1";
+const COST_HISTORY_KEY = "vm_cost_history_v1";
 
 const SIDE_PANE_ID = "vm-side-pane";
 const MATHJAX_BUNDLE_PATH = "mathjax/tex-svg-full.js";
@@ -308,6 +309,38 @@ function storageSet(obj) {
 function taskStorageKey() {
   return `${STORE_PREFIX}:${location.origin}${location.pathname}`;
 }
+
+// コスト履歴を取得
+async function getCostHistory() {
+  const got = await storageGet([COST_HISTORY_KEY]);
+  return got[COST_HISTORY_KEY] || { history: [] };
+}
+
+// コスト履歴を保存
+async function saveCostHistory(costHistory) {
+  await storageSet({ [COST_HISTORY_KEY]: costHistory });
+}
+
+// コスト履歴に記録を追加
+async function addCostRecord(usage, model, elapsedTime) {
+  const costHistory = await getCostHistory();
+  const record = {
+    timestamp: Date.now(),
+    date: new Date().toISOString(),
+    model,
+    elapsedTime,
+    inputTokens: usage.inputTokens || 0,
+    outputTokens: usage.outputTokens || 0,
+    totalTokens: usage.totalTokens || 0,
+    inputCost: usage.inputCost || 0,
+    outputCost: usage.outputCost || 0,
+    totalCost: usage.totalCost || 0
+  };
+  costHistory.history.push(record);
+  await saveCostHistory(costHistory);
+  return record;
+}
+
 
 function nowTitle(versionNo) {
   const dt = new Intl.DateTimeFormat(currentLang === "ja" ? "ja-JP" : "en-US", {
@@ -690,6 +723,7 @@ function renderDescription(description) {
     details.style.display = "none";
   }
 }
+
 
 // ========== サイドペイン ==========
 
@@ -1118,6 +1152,10 @@ async function generateOrRegenerate() {
     const titleFromModel = String(out.title || "").trim();
     const description = String(out.description || "");
 
+    // コスト情報を保存
+    const usage = res.usage || {};
+    const costRecord = await addCostRecord(usage, res.model, elapsedSec);
+
     const versionNo = (store.versions?.length || 0) + 1;
     const title = titleFromModel ? `${nowTitle(versionNo)} (${titleFromModel})` : nowTitle(versionNo);
     const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -1129,7 +1167,8 @@ async function generateOrRegenerate() {
       model: res.model,
       promptExtra: extra,
       html,
-      description
+      description,
+      usage: costRecord
     });
 
     store.activeId = id;
@@ -1138,7 +1177,11 @@ async function generateOrRegenerate() {
     refreshVersionSelect(store);
     await renderHtmlToIframe(html);
     renderDescription(description);
-    setStatus(t("pane.generateComplete", { time: elapsedSec, title: title }));
+
+    // コスト情報を含むステータス表示
+    const costStr = `$${costRecord.totalCost.toFixed(6)}`;
+    const tokensStr = `${costRecord.totalTokens.toLocaleString()} tokens`;
+    setStatus(t("pane.generateComplete", { time: elapsedSec, title: title }) + `\n${t("pane.cost")}: ${costStr} (${tokensStr})`);
     setPrimaryButtonLabel(true);
     setExtraPromptLabel(true);
   } finally {

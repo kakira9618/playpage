@@ -71,6 +71,93 @@ function extractCandidateText(apiJson) {
   return texts.join("\n").trim();
 }
 
+// Gemini API料金レート (per million tokens)
+// Note: Vertex AI Express Mode and Standard use the same pricing as Gemini API
+const PRICING_RATES = {
+  // Gemini 2.5 Pro
+  "gemini-2.5-pro": {
+    input: { threshold: 200000, low: 1.25, high: 2.50 },
+    output: { threshold: 200000, low: 10.00, high: 15.00 }
+  },
+  // Gemini 2.5 Flash
+  "gemini-2.5-flash": {
+    input: { default: 0.30, audio: 1.00 },
+    output: { default: 2.50 }
+  },
+  // Gemini 2.5 Flash-Lite
+  "gemini-2.5-flash-lite": {
+    input: { default: 0.10, audio: 0.30 },
+    output: { default: 0.40 }
+  },
+  // Gemini 3 Pro プレビュー
+  "gemini-3-pro-preview": {
+    input: { threshold: 200000, low: 2.00, high: 4.00 },
+    output: { threshold: 200000, low: 12.00, high: 18.00 }
+  },
+  // Gemini 3 Flash プレビュー
+  "gemini-3-flash-preview": {
+    input: { default: 0.50, audio: 1.00 },
+    output: { default: 3.00 }
+  },
+  // Gemini 2.0 Flash
+  "gemini-2.0-flash": {
+    input: { default: 0.15, audio: 1.00 },
+    output: { default: 0.60 }
+  },
+  // Gemini 2.0 Flash Lite
+  "gemini-2.0-flash-lite": {
+    input: { default: 0.075, audio: 0.075 },
+    output: { default: 0.30 }
+  }
+};
+
+function calculateCost(model, inputTokens, outputTokens) {
+  const rates = PRICING_RATES[model];
+  if (!rates) {
+    // 未知のモデルの場合はGemini 2.5 Flashの料金を使用
+    return calculateCost("gemini-2.5-flash", inputTokens, outputTokens);
+  }
+
+  let inputCost = 0;
+  let outputCost = 0;
+
+  // 入力トークンのコスト計算
+  if (rates.input.threshold !== undefined) {
+    // 閾値ベースの料金（例: ≤200K tokens = 低料金, >200K = 高料金）
+    if (inputTokens <= rates.input.threshold) {
+      inputCost = (inputTokens / 1000000) * rates.input.low;
+    } else {
+      inputCost = (inputTokens / 1000000) * rates.input.high;
+    }
+  } else {
+    // 固定料金（音声は考慮せず、デフォルトを使用）
+    inputCost = (inputTokens / 1000000) * (rates.input.default || 0);
+  }
+
+  // 出力トークンのコスト計算
+  // Note: 出力トークンの料金階層も入力トークン数（プロンプトサイズ）に基づいて決まる
+  if (rates.output.threshold !== undefined) {
+    // 閾値ベースの料金（入力トークン数に基づく）
+    if (inputTokens <= rates.output.threshold) {
+      outputCost = (outputTokens / 1000000) * rates.output.low;
+    } else {
+      outputCost = (outputTokens / 1000000) * rates.output.high;
+    }
+  } else {
+    // 固定料金
+    outputCost = (outputTokens / 1000000) * (rates.output.default || 0);
+  }
+
+  return {
+    inputCost,
+    outputCost,
+    totalCost: inputCost + outputCost,
+    inputTokens,
+    outputTokens,
+    totalTokens: inputTokens + outputTokens
+  };
+}
+
 function safeParseVisualizerJson(text) {
   // 1) strict JSON
   try {
@@ -208,7 +295,24 @@ async function callGeminiGenerateContent({
   const text = extractCandidateText(apiJson);
   if (!text) throw new Error("API response missing candidate text");
 
-  return { text };
+  // トークン使用情報を抽出
+  const usageMetadata = apiJson?.usageMetadata || {};
+  const inputTokens = usageMetadata.promptTokenCount || 0;
+  const outputTokens = usageMetadata.candidatesTokenCount || 0;
+  const totalTokens = usageMetadata.totalTokenCount || (inputTokens + outputTokens);
+
+  // コスト計算
+  const costInfo = calculateCost(model, inputTokens, outputTokens);
+
+  return {
+    text,
+    usage: {
+      inputTokens,
+      outputTokens,
+      totalTokens,
+      ...costInfo
+    }
+  };
 }
 
 // アイコンクリック時の処理
@@ -313,7 +417,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           ];
         }
 
-        const { text } = await callGeminiGenerateContent(callParams);
+        const { text, usage } = await callGeminiGenerateContent(callParams);
 
         const parsed = safeParseVisualizerJson(text);
         if (!parsed?.html) {
@@ -323,7 +427,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           );
         }
 
-        sendResponse({ ok: true, provider, model: callParams.model, data: parsed });
+        sendResponse({ ok: true, provider, model: callParams.model, data: parsed, usage });
         return;
       }
 
