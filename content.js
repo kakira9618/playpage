@@ -390,7 +390,7 @@ function injectCspIfMissing(html) {
 
   // Block network; allow only self / extension resources and data/blob for scripts (for srcdoc/data URIs)
   const csp =
-    "default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline'; script-src 'self' chrome-extension: data: blob:";
+    "default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline' 'self' chrome-extension: data: blob:";
 
   if (/<head[^>]*>/i.test(html)) {
     return html.replace(
@@ -904,7 +904,7 @@ function buildSidePane() {
               border:none;
               border-radius:10px;
             "
-            sandbox="allow-scripts"
+            sandbox="allow-scripts allow-same-origin allow-forms"
           ></iframe>
           <div id="vm-iframe-resize-handle" style="
             position:absolute;
