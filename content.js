@@ -478,7 +478,39 @@ async function renderHtmlToIframe(html) {
   iframe.srcdoc = injectCspIfMissing(finalHtml);
 }
 
-async function collectPageHtmlForPrompt() {
+// 選択範囲のHTMLを取得
+function getSelectionHtml() {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return null;
+  }
+
+  const range = selection.getRangeAt(0);
+  if (range.collapsed) {
+    return null; // 選択されていない
+  }
+
+  const container = document.createElement("div");
+  container.appendChild(range.cloneContents());
+  return container.innerHTML;
+}
+
+async function collectPageHtmlForPrompt(useSelection = false) {
+  // 選択範囲モードの場合
+  if (useSelection) {
+    const selectionHtml = getSelectionHtml();
+    if (selectionHtml && selectionHtml.trim()) {
+      return {
+        html: selectionHtml,
+        trimmed: false,
+        isPdf: false,
+        pdf: null,
+        isSelection: true
+      };
+    }
+    // 選択範囲がない場合は全体にフォールバック
+  }
+
   const pdfInfo = detectPdfPage();
   if (pdfInfo) {
     return {
@@ -488,14 +520,15 @@ async function collectPageHtmlForPrompt() {
       pdf: {
         url: pdfInfo.url,
         contentType: pdfInfo.contentType || "application/pdf"
-      }
+      },
+      isSelection: false
     };
   }
 
   const full = document.documentElement?.outerHTML || "";
   const MAX = 260_000;
   if (full.length <= MAX) {
-    return { html: full, trimmed: false, isPdf: false, pdf: null };
+    return { html: full, trimmed: false, isPdf: false, pdf: null, isSelection: false };
   }
   const head = full.slice(0, 200_000);
   const tail = full.slice(-60_000);
@@ -503,13 +536,14 @@ async function collectPageHtmlForPrompt() {
     html: head + "\n<!-- [TRIMMED] middle omitted -->\n" + tail,
     trimmed: true,
     isPdf: false,
-    pdf: null
+    pdf: null,
+    isSelection: false
   };
 }
 
 function buildPrompt(
   problemHtml,
-  { isRegenerate, extra, currentHtml, currentDescription, trimmed, promptBase, isPdf }
+  { isRegenerate, extra, currentHtml, currentDescription, trimmed, promptBase, isPdf, isSelection }
 ) {
   const base = promptBase || getDefaultPromptForLang(currentLang, "generic");
 
@@ -527,8 +561,16 @@ function buildPrompt(
       : "(Note) Page HTML has been trimmed due to length.";
     p += `\n${trimNote}\n`;
   }
+  if (isSelection) {
+    const selectionNote = currentLang === "ja"
+      ? "(注) 以下はユーザーが選択した部分のHTMLのみです。ページ全体ではありません。"
+      : "(Note) The following is only the HTML of the user-selected portion, not the entire page.";
+    p += `\n${selectionNote}\n`;
+  }
 
-  const pageHtmlLabel = currentLang === "ja" ? "対象ページHTML" : "Target Page HTML";
+  const pageHtmlLabel = isSelection
+    ? (currentLang === "ja" ? "選択部分のHTML" : "Selected HTML")
+    : (currentLang === "ja" ? "対象ページHTML" : "Target Page HTML");
   p += `\n【${pageHtmlLabel}】\n\`\`\`html\n${problemHtml}\n\`\`\`\n`;
 
   if (isRegenerate) {
@@ -904,35 +946,81 @@ function buildSidePane() {
           transition: all 0.2s ease;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         ">${t('pane.options')}</button>
+        <label style="
+          display:flex;
+          align-items:center;
+          gap:6px;
+          cursor:pointer;
+          padding:8px 12px;
+          background:#ffffff;
+          border:1px solid #e0e0e0;
+          border-radius:8px;
+          transition:all 0.2s ease;
+          font-size:13px;
+          font-weight:500;
+          color:#333;
+          white-space:nowrap;
+        " id="vm-selection-mode-label">
+          <input type="checkbox" id="vm-use-selection" style="
+            width:16px;
+            height:16px;
+            cursor:pointer;
+            accent-color:#0060CE;
+            margin:0;
+          ">
+          <span>${t('pane.useSelection')}</span>
+        </label>
       </div>
 
       <!-- バージョン選択 -->
       <div style="margin-bottom:20px;">
         <label style="display:block; font-size:13px; margin-bottom:8px; font-weight:600; color:#333;">${t('pane.versionSelect')}</label>
-        <select id="vm-versions" style="
-          width:100% !important;
-          padding:10px 12px !important;
-          border:1px solid #e0e0e0 !important;
-          border-radius:8px !important;
-          background:#ffffff !important;
-          font-size:14px !important;
-          cursor:pointer !important;
-          box-sizing:border-box !important;
-          display:block !important;
-          line-height:1.5 !important;
-          height:auto !important;
-          min-height:44px !important;
-          min-width:0 !important;
-          max-width:none !important;
-          -webkit-appearance:menulist !important;
-          -moz-appearance:menulist !important;
-          appearance:menulist !important;
-          background-image:none !important;
-          padding-right:30px !important;
-          vertical-align:middle !important;
-          transition: all 0.2s ease;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        "></select>
+        <div style="display:flex; gap:8px; align-items:stretch;">
+          <select id="vm-versions" style="
+            flex:1 !important;
+            padding:10px 12px !important;
+            border:1px solid #e0e0e0 !important;
+            border-radius:8px !important;
+            background:#ffffff !important;
+            font-size:14px !important;
+            cursor:pointer !important;
+            box-sizing:border-box !important;
+            display:block !important;
+            line-height:1.5 !important;
+            height:auto !important;
+            min-height:44px !important;
+            min-width:0 !important;
+            max-width:none !important;
+            -webkit-appearance:menulist !important;
+            -moz-appearance:menulist !important;
+            appearance:menulist !important;
+            background-image:none !important;
+            padding-right:30px !important;
+            vertical-align:middle !important;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          "></select>
+          <button id="vm-delete-version" style="
+            padding:10px 14px !important;
+            background:#ffffff !important;
+            color:#d32f2f !important;
+            border:1px solid #e0e0e0 !important;
+            border-radius:8px !important;
+            cursor:pointer !important;
+            font-weight:500 !important;
+            font-size:14px !important;
+            line-height:1.4 !important;
+            vertical-align:middle !important;
+            display:inline-block !important;
+            text-align:center !important;
+            box-sizing:border-box !important;
+            min-width:auto !important;
+            width:auto !important;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            white-space:nowrap !important;
+          " title="${t('pane.deleteVersion')}">🗑️</button>
+        </div>
       </div>
 
       <!-- ステータス -->
@@ -1160,7 +1248,10 @@ async function generateOrRegenerate() {
     currentDescription = cur?.description || "";
   }
 
-  const { html: pageHtml, trimmed, isPdf, pdf } = await collectPageHtmlForPrompt();
+  // 選択範囲モードのチェックボックスの状態を取得
+  const useSelection = document.getElementById("vm-use-selection")?.checked || false;
+
+  const { html: pageHtml, trimmed, isPdf, pdf, isSelection } = await collectPageHtmlForPrompt(useSelection);
   const promptText = buildPrompt(pageHtml, {
     isRegenerate,
     extra,
@@ -1168,7 +1259,8 @@ async function generateOrRegenerate() {
     currentDescription,
     trimmed,
     promptBase,
-    isPdf
+    isPdf,
+    isSelection
   });
 
   // 生成開始
@@ -1339,6 +1431,32 @@ function wirePanelHandlers() {
         });
       }
     }
+
+    // 選択範囲モードのラベルにホバー効果
+    const selectionLabel = document.getElementById("vm-selection-mode-label");
+    if (selectionLabel) {
+      selectionLabel.addEventListener("mouseenter", () => {
+        selectionLabel.style.background = "#f8f9fa";
+        selectionLabel.style.borderColor = "#0060CE";
+      });
+      selectionLabel.addEventListener("mouseleave", () => {
+        selectionLabel.style.background = "#ffffff";
+        selectionLabel.style.borderColor = "#e0e0e0";
+      });
+    }
+
+    // 削除ボタンのホバー効果
+    const deleteBtn = document.getElementById("vm-delete-version");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("mouseenter", () => {
+        deleteBtn.style.background = "#ffebee";
+        deleteBtn.style.borderColor = "#d32f2f";
+      });
+      deleteBtn.addEventListener("mouseleave", () => {
+        deleteBtn.style.background = "#ffffff";
+        deleteBtn.style.borderColor = "#e0e0e0";
+      });
+    }
   };
 
   addButtonHoverEffects();
@@ -1368,6 +1486,44 @@ function wirePanelHandlers() {
     if (!id) return;
     const store = await loadStore();
     await applyVersion(store, id);
+  });
+
+  // バージョン削除ボタン
+  document.getElementById("vm-delete-version")?.addEventListener("click", async () => {
+    const store = await loadStore();
+    if (store.versions.length === 0) {
+      alert(t("pane.noVersionToDelete"));
+      return;
+    }
+
+    const currentId = store.activeId || store.versions[0]?.id;
+    const currentVersion = store.versions.find(v => v.id === currentId);
+    const versionTitle = currentVersion?.title || currentId;
+
+    if (!confirm(t("pane.deleteVersionConfirm", { version: versionTitle }))) {
+      return;
+    }
+
+    // 削除処理
+    store.versions = store.versions.filter(v => v.id !== currentId);
+
+    // アクティブなバージョンを更新
+    if (store.versions.length > 0) {
+      store.activeId = store.versions[0].id;
+      await saveStore(store);
+      refreshVersionSelect(store);
+      await applyVersion(store, store.activeId);
+    } else {
+      // 全てのバージョンが削除された場合
+      store.activeId = null;
+      await saveStore(store);
+      refreshVersionSelect(store);
+      await renderHtmlToIframe("");
+      renderDescription("");
+      setStatus(t("pane.notGenerated"));
+      setPrimaryButtonLabel(false);
+      setExtraPromptLabel(false);
+    }
   });
 
   // リサイズハンドル

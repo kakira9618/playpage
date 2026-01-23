@@ -148,6 +148,10 @@ const messages = {
     "pane.privacyRequired": "生成するにはデータ送信への同意が必要です。",
     "pane.cost": "コスト",
     "pane.tokensFormat": "入力: {input} / 出力: {output} tokens",
+    "pane.useSelection": "選択部分のHTMLのみを使用",
+    "pane.deleteVersion": "このバージョンを削除",
+    "pane.deleteVersionConfirm": "バージョン「{version}」を削除しますか？\nこの操作は取り消せません。",
+    "pane.noVersionToDelete": "削除できるバージョンがありません",
 
     // Contest status (AtCoder)
     "contest.timeError": "コンテスト時刻の取得に失敗しました。安全のため利用を制限します。",
@@ -297,6 +301,10 @@ const messages = {
     "pane.privacyRequired": "Consent is required before sending data.",
     "pane.cost": "Cost",
     "pane.tokensFormat": "Input: {input} / Output: {output} tokens",
+    "pane.useSelection": "Use selected HTML only",
+    "pane.deleteVersion": "Delete this version",
+    "pane.deleteVersionConfirm": "Delete version \"{version}\"?\nThis action cannot be undone.",
+    "pane.noVersionToDelete": "No version to delete",
 
     // Contest status (AtCoder)
     "contest.timeError": "Failed to get contest time. Usage is restricted for safety.",
