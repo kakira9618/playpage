@@ -2,13 +2,13 @@
 
 A Chrome extension that uses AI (Gemini) to analyze the content of web pages you're browsing and **instantly generate and embed interactive apps** to aid understanding.
 
-Available for **any website**, with the ability to set customized prompts for specific sites to achieve more appropriate visualizations.
+Available for **any website**, with the ability to set customized prompts for specific sites to achieve more appropriate apps.
 
 ---
 
 ## 🚀 Features
 
-### 1. Unconstrained "Free Visualization"
+### 1. Unconstrained "Free App Creation"
 Unlike existing tools limited to specific formats like "mind maps" or "graphs," the AI generates **optimal algorithms and entire interactive UI code** from scratch based on the context at hand, and embeds it directly into the page.
 
 ### 2. From "Viewing" to "Experimenting"
@@ -23,7 +23,7 @@ No need to copy and paste into chat tools. Execute with one button, and everythi
 
 - **Instant Generation & Embedding**: Fast app construction using Gemini 3 Pro / Flash
 - **Multiple Provider Support**: Choose from Gemini API, Vertex AI Express Mode, or Vertex AI Standard (OAuth)
-- **Layout Controls**: Drag to resize the side pane width and iframe height, switch between floating and page-shrinking modes, and toggle fullscreen for the visualizer area
+- **Layout Controls**: Drag to resize the side pane width and iframe height, switch between floating and page-shrinking modes, and toggle fullscreen for the app area
 - **PDF / Math Aware**: Detects PDF pages, attaches the PDF binary to the AI request, and auto-injects MathJax to render LaTeX/MathML
 - **Interactive Improvement**: Enhance apps with additional instructions like "add animations" or "make it more interactive"
 - **Version Control**: Instantly switch between previously generated apps via dropdown
@@ -111,7 +111,7 @@ The most robust method using OAuth 2.0 authentication.
 
 #### Side Panel Tips
 - 📌 toggles floating vs. shrinking the page width
-- ⛶ makes only the visualizer area fullscreen / exits fullscreen
+- ⛶ makes only the app area fullscreen / exits fullscreen
 - Drag the left handle to resize pane width; drag the bottom handle to resize iframe height
 - The dropdown lets you switch per-page history entries (timestamped titles) instantly
 
@@ -148,7 +148,7 @@ This extension automatically estimates Gemini API usage costs and displays month
 - **Use on Competitive Programming Sites**:
   Using this extension during active contests on competitive programming sites like AtCoder may violate their rules. While this extension restricts usage during AtCoder contest hours, you must comply with each site's LLM usage rules (e.g., [AtCoder's LLM Usage Rules](https://info.atcoder.jp/entry/llm-rules-ja)) and apply the same caution to other competitive programming platforms.
 - **Supported Sites**:
-  Available on any web page accessible via HTTP/HTTPS. Setting dedicated prompts for specific sites enables more appropriate visualization.
+  Available on any web page accessible via HTTP/HTTPS. Setting dedicated prompts for specific sites enables more appropriate app creation.
 
 ### API & Costs
 - **API Key & Authentication Management**:

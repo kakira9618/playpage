@@ -105,11 +105,11 @@ function getDefaultPromptForLang(lang, type) {
 アプリ部分についての表現は自由とするが、以下の点には気をつけること
 
 - mod 998244353 などで「有理数」の出力を求められた場合
-  - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方可視化し表示すること
+  - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方表示すること
 
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`;
   }
-  return String.raw`Webページの内容が与えられるので、その内容を理解・可視化するためのインタラクティブなアプリをJavaScriptで作成してください。
+  return String.raw`Webページの内容が与えられるので、その内容を理解するためのインタラクティブなアプリをJavaScriptで作成してください。
 
 以下の点に注意してください：
 - ページの主要な情報を視覚的にわかりやすく表示すること
@@ -517,8 +517,8 @@ function buildPrompt(
   if (isPdf) {
     const pdfNote =
       currentLang === "ja"
-        ? "このページはPDFです。PDFファイル本体を別途送信しています。テキストを抽出してから可視化を行ってください。"
-        : "The current page is a PDF. The PDF file is attached separately; please extract its text/content before building the visualization.";
+        ? "このページはPDFです。PDFファイル本体を別途送信しています。テキストを抽出してからアプリを作成してください。"
+        : "The current page is a PDF. The PDF file is attached separately; please extract its text/content before building the app.";
     p += `\n${pdfNote}\n`;
   }
   if (trimmed) {
@@ -545,10 +545,10 @@ function buildPrompt(
     p += `\n【${currentDescLabel}】\n${currentDescription || noneLabel}\n`;
     p += `\n${noteLabel}\n`;
   } else if (extra) {
-    const visualizeLabel = currentLang === "ja" ? "可視化したいもの" : "What to Visualize";
+    const visualizeLabel = currentLang === "ja" ? "アプリ化したいもの" : "What to create an app for";
     const noteLabel = currentLang === "ja"
-      ? "※ 上記の「可視化したいもの」を特に重点的に表現してください。"
-      : "※ Please focus especially on expressing the above 'What to Visualize'.";
+      ? "※ 上記の「アプリ化したいもの」を特に重点的に表現してください。"
+      : "※ Please focus especially on expressing the above 'What to create an app for'.";
 
     p += `\n【${visualizeLabel}】\n${extra}\n`;
     p += `\n${noteLabel}\n`;
@@ -808,34 +808,55 @@ function buildSidePane() {
       </div>
       <div style="display:flex; gap:6px; align-items:center;">
         <button id="vm-mode-toggle" style="
-          padding:6px 12px;
-          cursor:pointer;
-          border:1px solid #e0e0e0;
-          background:#ffffff;
-          border-radius:6px;
-          font-size:16px;
+          padding:6px 12px !important;
+          cursor:pointer !important;
+          border:1px solid #e0e0e0 !important;
+          background:#ffffff !important;
+          border-radius:6px !important;
+          font-size:16px !important;
+          line-height:1.2 !important;
+          vertical-align:middle !important;
+          display:inline-block !important;
+          text-align:center !important;
+          box-sizing:border-box !important;
+          min-width:auto !important;
+          width:auto !important;
           transition: all 0.2s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         " title="${t('pane.modeFloatTooltip')}">📌</button>
         <button id="vm-fullscreen-toggle" style="
-          padding:6px 12px;
-          cursor:pointer;
-          border:1px solid #e0e0e0;
-          background:#ffffff;
-          border-radius:6px;
-          font-size:16px;
+          padding:6px 12px !important;
+          cursor:pointer !important;
+          border:1px solid #e0e0e0 !important;
+          background:#ffffff !important;
+          border-radius:6px !important;
+          font-size:16px !important;
+          line-height:1.2 !important;
+          vertical-align:middle !important;
+          display:inline-block !important;
+          text-align:center !important;
+          box-sizing:border-box !important;
+          min-width:auto !important;
+          width:auto !important;
           transition: all 0.2s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         " title="全画面化">⛶</button>
         <button id="vm-collapse" style="
-          padding:6px 14px;
-          cursor:pointer;
-          border:1px solid #e0e0e0;
-          background:#ffffff;
-          border-radius:6px;
-          font-size:13px;
-          font-weight:500;
-          color:#666;
+          padding:6px 14px !important;
+          cursor:pointer !important;
+          border:1px solid #e0e0e0 !important;
+          background:#ffffff !important;
+          border-radius:6px !important;
+          font-size:13px !important;
+          font-weight:500 !important;
+          color:#666 !important;
+          line-height:1.4 !important;
+          vertical-align:middle !important;
+          display:inline-block !important;
+          text-align:center !important;
+          box-sizing:border-box !important;
+          min-width:auto !important;
+          width:auto !important;
           transition: all 0.2s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         ">${t('pane.close')}</button>
@@ -846,26 +867,40 @@ function buildSidePane() {
       <!-- 1) ボタン行 -->
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
         <button id="vm-make" style="
-          padding:10px 20px;
-          background:#0060CE;
-          color:#fff;
-          border:none;
-          border-radius:8px;
-          cursor:pointer;
-          font-weight:600;
-          font-size:14px;
+          padding:10px 20px !important;
+          background:#0060CE !important;
+          color:#fff !important;
+          border:none !important;
+          border-radius:8px !important;
+          cursor:pointer !important;
+          font-weight:600 !important;
+          font-size:14px !important;
+          line-height:1.4 !important;
+          vertical-align:middle !important;
+          display:inline-block !important;
+          text-align:center !important;
+          box-sizing:border-box !important;
+          min-width:auto !important;
+          width:auto !important;
           transition: all 0.2s ease;
           box-shadow: 0 2px 8px rgba(0, 96, 206, 0.3);
         ">${t('pane.generate')}</button>
         <button id="vm-open-options" style="
-          padding:10px 18px;
-          background:#ffffff;
-          color:#666;
-          border:1px solid #e0e0e0;
-          border-radius:8px;
-          cursor:pointer;
-          font-weight:500;
-          font-size:14px;
+          padding:10px 18px !important;
+          background:#ffffff !important;
+          color:#666 !important;
+          border:1px solid #e0e0e0 !important;
+          border-radius:8px !important;
+          cursor:pointer !important;
+          font-weight:500 !important;
+          font-size:14px !important;
+          line-height:1.4 !important;
+          vertical-align:middle !important;
+          display:inline-block !important;
+          text-align:center !important;
+          box-sizing:border-box !important;
+          min-width:auto !important;
+          width:auto !important;
           transition: all 0.2s ease;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         ">${t('pane.options')}</button>
@@ -875,13 +910,26 @@ function buildSidePane() {
       <div style="margin-bottom:20px;">
         <label style="display:block; font-size:13px; margin-bottom:8px; font-weight:600; color:#333;">${t('pane.versionSelect')}</label>
         <select id="vm-versions" style="
-          width:100%;
-          padding:10px 12px;
-          border:1px solid #e0e0e0;
-          border-radius:8px;
-          background:#ffffff;
-          font-size:14px;
-          cursor:pointer;
+          width:100% !important;
+          padding:10px 12px !important;
+          border:1px solid #e0e0e0 !important;
+          border-radius:8px !important;
+          background:#ffffff !important;
+          font-size:14px !important;
+          cursor:pointer !important;
+          box-sizing:border-box !important;
+          display:block !important;
+          line-height:1.5 !important;
+          height:auto !important;
+          min-height:44px !important;
+          min-width:0 !important;
+          max-width:none !important;
+          -webkit-appearance:menulist !important;
+          -moz-appearance:menulist !important;
+          appearance:menulist !important;
+          background-image:none !important;
+          padding-right:30px !important;
+          vertical-align:middle !important;
           transition: all 0.2s ease;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         "></select>
@@ -920,7 +968,7 @@ function buildSidePane() {
           placeholder="${t('pane.freePromptInitialPlaceholder')}"></textarea>
       </div>
 
-      <!-- 3) Visualizer本体 -->
+      <!-- 3) アプリ本体 -->
       <div style="margin-bottom:20px;">
         <div id="vm-iframe-container" style="
           position:relative;
@@ -962,7 +1010,6 @@ function buildSidePane() {
             padding:12px 16px;
             background:#ffffff;
             border-radius:8px;
-            border:1px solid #e0e0e0;
             transition: all 0.2s ease;
             color:#333;
             font-size:14px;
@@ -972,13 +1019,11 @@ function buildSidePane() {
           <div id="vm-description" style="
             padding:16px;
             margin-top:8px;
-            border:1px solid #e0e0e0;
             border-radius:8px;
             background:#ffffff;
             font-size:14px;
             line-height:1.7;
             color:#444;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
           ">
             ${t('pane.noDescription')}
           </div>
@@ -1180,7 +1225,10 @@ async function generateOrRegenerate() {
 
     // コスト情報を含むステータス表示
     const costStr = `$${costRecord.totalCost.toFixed(6)}`;
-    const tokensStr = `${costRecord.totalTokens.toLocaleString()} tokens`;
+    const tokensStr = t("pane.tokensFormat", {
+      input: costRecord.inputTokens.toLocaleString(),
+      output: costRecord.outputTokens.toLocaleString()
+    });
     setStatus(t("pane.generateComplete", { time: elapsedSec, title: title }) + `\n${t("pane.cost")}: ${costStr} (${tokensStr})`);
     setPrimaryButtonLabel(true);
     setExtraPromptLabel(true);

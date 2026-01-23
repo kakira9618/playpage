@@ -8,6 +8,7 @@ const messages = {
   ja: {
     // Options page
     "options.title": "PlayPage - Options",
+    "options.information": "情報",
     "options.basicSettings": "基本設定",
     "options.provider": "プロバイダー",
     "options.providerGeminiApi": "Gemini API (api.google.dev)",
@@ -40,7 +41,7 @@ const messages = {
     "options.authSuccess": "認証に成功しました",
     "options.authFailed": "認証に失敗しました: {error}",
     "options.authRevoked": "認証を解除しました",
-    "options.redirectUriLabel": "承認済みのリダイレクトURI（OAuth Client ID作成時に必要）",
+    "options.redirectUriLabel": "承認済みのリダイレクトURIに追加してください（OAuth Client ID作成時に必要）：",
     "options.copyToClipboard": "コピー",
     "options.copiedToClipboard": "コピーしました",
     "options.save": "保存",
@@ -80,12 +81,12 @@ const messages = {
 
     // Data management
     "options.dataManagement": "データのインポート・エクスポート",
-    "options.allData": "全データ（設定 + 履歴）",
-    "options.allDataHint": "設定とVisualizer履歴データをバックアップ・復元できます。",
+    "options.allData": "全データ",
+    "options.allDataHint": "設定とアプリ履歴データをバックアップ・復元できます。",
     "options.exportAll": "全データをエクスポート",
     "options.importAll": "全データをインポート",
     "options.historyOnly": "履歴データのみ",
-    "options.historyOnlyHint": "Visualizerの履歴データのみを全て削除します。API Key、使用モデル、プロンプト設定は保持されます。",
+    "options.historyOnlyHint": "アプリの履歴データのみを全て削除します。API Key、使用モデル、プロンプト設定は保持されます。",
     "options.exportClearHistory": "履歴をエクスポート＆全削除",
     "options.exporting": "エクスポート中...",
     "options.exportComplete": "エクスポート完了しました",
@@ -103,10 +104,13 @@ const messages = {
     "options.exportCompleteDeleting": "エクスポート完了。履歴を削除中...",
     "options.historyDeleteComplete": "完了: {count}件の履歴データをエクスポート＆削除しました",
     "options.error": "エラー: {error}",
-    "options.monthlyCostTitle": "この拡張による月間利用料金",
-    "options.monthlyCostHint": "Gemini APIの利用料金の概算を月ごとに表示します。",
+    "options.monthlyCostTitle": "拡張の利用料金（月ごと）",
+    "options.monthlyCostHint": "利用料金の概算を月ごとに表示します。",
     "options.noCostHistory": "コスト履歴がありません",
     "options.costEstimateNote": "※ 料金は概算です。正確な料金はGoogle Cloudコンソールでご確認ください。",
+    "options.requestCount": "リクエスト回数",
+    "options.totalTokens": "合計トークン数",
+    "options.avgCostPerRequest": "平均コスト/回",
 
     // Content script (side pane)
     "pane.title": "PlayPage",
@@ -119,7 +123,7 @@ const messages = {
     "pane.regenerate": "再生成",
     "pane.options": "Options",
     "pane.versionSelect": "バージョン選択:",
-    "pane.freePromptInitial": "可視化したいもの（任意）",
+    "pane.freePromptInitial": "アプリ化したいもの（任意）",
     "pane.freePromptRegenerate": "改善用プロンプト（任意）",
     "pane.freePromptInitialPlaceholder": "例: アルゴリズムの動き / グラフ構造 / データの変化 など",
     "pane.freePromptRegeneratePlaceholder": "例: もっとインタラクティブに / グラフを追加 など",
@@ -143,6 +147,7 @@ const messages = {
     "pane.privacyPolicy": "プライバシーポリシーを表示",
     "pane.privacyRequired": "生成するにはデータ送信への同意が必要です。",
     "pane.cost": "コスト",
+    "pane.tokensFormat": "入力: {input} / 出力: {output} tokens",
 
     // Contest status (AtCoder)
     "contest.timeError": "コンテスト時刻の取得に失敗しました。安全のため利用を制限します。",
@@ -152,6 +157,7 @@ const messages = {
   en: {
     // Options page
     "options.title": "PlayPage - Options",
+    "options.information": "Information",
     "options.basicSettings": "Basic Settings",
     "options.provider": "Provider",
     "options.providerGeminiApi": "Gemini API (api.google.dev)",
@@ -224,12 +230,12 @@ const messages = {
 
     // Data management
     "options.dataManagement": "Import / Export Data",
-    "options.allData": "All Data (Settings + History)",
-    "options.allDataHint": "Backup and restore settings and Visualizer history data.",
+    "options.allData": "All Data",
+    "options.allDataHint": "Backup and restore settings and App history data.",
     "options.exportAll": "Export All Data",
     "options.importAll": "Import All Data",
     "options.historyOnly": "History Data Only",
-    "options.historyOnlyHint": "Delete all Visualizer history data. API Key, model, and prompt settings will be preserved.",
+    "options.historyOnlyHint": "Delete all App history data. API Key, model, and prompt settings will be preserved.",
     "options.exportClearHistory": "Export & Delete All History",
     "options.exporting": "Exporting...",
     "options.exportComplete": "Export completed",
@@ -247,10 +253,13 @@ const messages = {
     "options.exportCompleteDeleting": "Export complete. Deleting history...",
     "options.historyDeleteComplete": "Complete: Exported and deleted {count} history entries",
     "options.error": "Error: {error}",
-    "options.monthlyCostTitle": "Monthly Usage Cost by This Extension",
-    "options.monthlyCostHint": "Displays estimated Gemini API usage costs by month.",
+    "options.monthlyCostTitle": "Usage Cost (Monthly)",
+    "options.monthlyCostHint": "Displays estimated usage costs by month.",
     "options.noCostHistory": "No cost history available",
     "options.costEstimateNote": "* Cost estimates are approximate. Please check the Google Cloud Console for accurate pricing.",
+    "options.requestCount": "Requests",
+    "options.totalTokens": "Total Tokens",
+    "options.avgCostPerRequest": "Avg. Cost/Request",
 
     // Content script (side pane)
     "pane.title": "PlayPage",
@@ -263,7 +272,7 @@ const messages = {
     "pane.regenerate": "Regenerate",
     "pane.options": "Options",
     "pane.versionSelect": "Version:",
-    "pane.freePromptInitial": "What to visualize (optional)",
+    "pane.freePromptInitial": "What to create an app for (optional)",
     "pane.freePromptRegenerate": "Improvement prompt (optional)",
     "pane.freePromptInitialPlaceholder": "e.g., Algorithm flow / Graph structure / Data changes",
     "pane.freePromptRegeneratePlaceholder": "e.g., Make it more interactive / Add graphs",
@@ -287,6 +296,7 @@ const messages = {
     "pane.privacyPolicy": "View privacy policy",
     "pane.privacyRequired": "Consent is required before sending data.",
     "pane.cost": "Cost",
+    "pane.tokensFormat": "Input: {input} / Output: {output} tokens",
 
     // Contest status (AtCoder)
     "contest.timeError": "Failed to get contest time. Usage is restricted for safety.",
@@ -307,11 +317,11 @@ const defaultPrompts = {
 アプリ部分についての表現は自由とするが、以下の点には気をつけること
 
 - mod 998244353 などで「有理数」の出力を求められた場合
-  - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方可視化し表示すること
+  - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方表示すること
 
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`,
 
-    generic: String.raw`Webページの内容が与えられるので、その内容を理解・可視化するためのインタラクティブなアプリをJavaScriptで作成してください。
+    generic: String.raw`Webページの内容が与えられるので、その内容を理解するためのインタラクティブなアプリをJavaScriptで作成してください。
 
 以下の点に注意してください：
 - ページの主要な情報を視覚的にわかりやすく表示すること
@@ -337,7 +347,7 @@ The visual representation is up to you, but pay attention to the following:
 
 The app description (description field) must be written in English.`,
 
-    generic: String.raw`Given the content of a web page, create an interactive JavaScript app to help understand and visualize the content.
+    generic: String.raw`Given the content of a web page, create an interactive JavaScript app to help understand the content.
 
 Please note the following:
 - Display the main information of the page in a visually clear manner

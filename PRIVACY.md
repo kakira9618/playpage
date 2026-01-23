@@ -24,7 +24,7 @@ _Last updated: January 22, 2026_
 - You may clear generation history or all stored data from Options at any time.
 
 ## 6. Security
-- Requests are sent via HTTPS. Visualizer code runs in a sandboxed iframe with a restrictive Content Security Policy.
+- Requests are sent via HTTPS. App code runs in a sandboxed iframe with a restrictive Content Security Policy.
 
 ## 7. Contact
 - For questions or issues, please open an issue in the repository.

@@ -158,7 +158,7 @@ function calculateCost(model, inputTokens, outputTokens) {
   };
 }
 
-function safeParseVisualizerJson(text) {
+function safeParseAppJson(text) {
   // 1) strict JSON
   try {
     return JSON.parse(text);
@@ -371,7 +371,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
 
         const { text } = await callGeminiGenerateContent(callParams);
-        const parsed = safeParseVisualizerJson(text);
+        const parsed = safeParseAppJson(text);
         if (!parsed?.html) throw new Error("Ping failed: missing html");
         sendResponse({ ok: true });
         return;
@@ -419,7 +419,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
         const { text, usage } = await callGeminiGenerateContent(callParams);
 
-        const parsed = safeParseVisualizerJson(text);
+        const parsed = safeParseAppJson(text);
         if (!parsed?.html) {
           const head = text.slice(0, 700);
           throw new Error(

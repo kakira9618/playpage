@@ -81,35 +81,82 @@ async function updateMonthlyCostDisplay() {
     return;
   }
 
-  let html = `<div style="font-size:13px; line-height:1.7;">`;
-
   // 当月を強調表示
   const currentMonth = new Date();
   const currentMonthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
 
-  for (const month of months.slice(0, 12)) {
-    const data = monthlyCosts[month];
-    const isCurrent = month === currentMonthKey;
-    const [year, monthNum] = month.split("-");
-    const monthLabel = currentLang === "ja"
-      ? `${year}年${parseInt(monthNum)}月`
-      : `${year}-${monthNum}`;
+  // 当月のデータを取得
+  const currentMonthData = monthlyCosts[currentMonthKey];
+  const currentMonthLabel = currentLang === "ja"
+    ? `${currentMonth.getFullYear()}年${currentMonth.getMonth() + 1}月`
+    : `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
 
-    html += `<div style="
-      display:flex;
-      justify-content:space-between;
-      padding:8px 12px;
-      margin-bottom:4px;
-      background:${isCurrent ? "rgba(0, 96, 206, 0.08)" : "#f8f9fa"};
-      border-radius:6px;
-      border:${isCurrent ? "1px solid rgba(0, 96, 206, 0.2)" : "1px solid #e8e8e8"};
-    ">
-      <span style="font-weight:${isCurrent ? "600" : "500"};">${monthLabel}</span>
-      <span style="font-weight:600; color:#0060CE;">$${data.totalCost.toFixed(6)}</span>
+  let html = `<div style="font-size:13px; line-height:1.7;">`;
+
+  // 当月のサマリー表示
+  if (currentMonthData) {
+    html += `<div style="padding:12px; background:rgba(0, 96, 206, 0.08); border:1px solid rgba(0, 96, 206, 0.2); border-radius:6px; margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-weight:600;">${currentMonthLabel}</span>
+        <span style="font-weight:600; color:#0060CE; font-size:16px;">$${currentMonthData.totalCost.toFixed(6)}</span>
+      </div>
+      <div style="font-size:12px; color:#666;">
+        <div>${t("options.requestCount")}: ${currentMonthData.count}${currentLang === "ja" ? "回" : ""}</div>
+        <div>${t("options.totalTokens")}: ${currentMonthData.totalTokens.toLocaleString()}</div>
+        <div>${t("options.avgCostPerRequest")}: $${(currentMonthData.totalCost / currentMonthData.count).toFixed(6)}</div>
+      </div>
     </div>`;
   }
 
-  html += `<div style="margin-top:8px; padding-top:8px; border-top:1px solid #e8e8e8; color:#666; font-size:12px;">`;
+  // 過去の月の折りたたみ
+  const pastMonths = months.filter(m => m !== currentMonthKey);
+  if (pastMonths.length > 0) {
+    html += `<details style="margin-top:12px;">
+      <summary style="
+        padding:8px 12px;
+        background:#f8f9fa;
+        border:1px solid #e8e8e8;
+        border-radius:6px;
+        cursor:pointer;
+        font-weight:500;
+      ">
+        ${currentLang === "ja" ? `過去の月 (${pastMonths.length}ヶ月分)` : `Past Months (${pastMonths.length})`}
+      </summary>
+      <div style="margin-top:8px;">`;
+
+    for (const month of pastMonths) {
+      const data = monthlyCosts[month];
+      const [year, monthNum] = month.split("-");
+      const monthLabel = currentLang === "ja"
+        ? `${year}年${parseInt(monthNum)}月`
+        : `${year}-${monthNum}`;
+
+      html += `<details style="margin-bottom:4px;">
+        <summary style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          padding:8px 12px;
+          background:#f8f9fa;
+          border-radius:6px;
+          border:1px solid #e8e8e8;
+          cursor:pointer;
+        ">
+          <span style="font-weight:500; text-align:left;">${monthLabel}</span>
+          <span style="font-weight:600; color:#0060CE; margin-left:auto;">$${data.totalCost.toFixed(6)}</span>
+        </summary>
+        <div style="padding:8px 12px; font-size:12px; color:#666;">
+          <div>${t("options.requestCount")}: ${data.count}${currentLang === "ja" ? "回" : ""}</div>
+          <div>${t("options.totalTokens")}: ${data.totalTokens.toLocaleString()}</div>
+          <div>${t("options.avgCostPerRequest")}: $${(data.totalCost / data.count).toFixed(6)}</div>
+        </div>
+      </details>`;
+    }
+
+    html += `</div></details>`;
+  }
+
+  html += `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #e8e8e8; color:#666; font-size:12px;">`;
   html += t("options.costEstimateNote");
   html += `</div>`;
 
