@@ -1229,7 +1229,18 @@ async function generateOrRegenerate() {
       input: costRecord.inputTokens.toLocaleString(),
       output: costRecord.outputTokens.toLocaleString()
     });
-    setStatus(t("pane.generateComplete", { time: elapsedSec, title: title }) + `\n${t("pane.cost")}: ${costStr} (${tokensStr})`);
+
+    // Modality別の内訳を表示（利用可能な場合）
+    let statusMessage = t("pane.generateComplete", { time: elapsedSec, title: title }) + `\n${t("pane.cost")}: ${costStr} (${tokensStr})`;
+
+    if (usage.modalityBreakdown && Array.isArray(usage.modalityBreakdown) && usage.modalityBreakdown.length > 0) {
+      const breakdown = usage.modalityBreakdown
+        .map(detail => `${detail.modality || "UNKNOWN"}: ${(detail.tokenCount || 0).toLocaleString()}`)
+        .join(", ");
+      statusMessage += `\n${currentLang === "ja" ? "内訳" : "Breakdown"}: ${breakdown}`;
+    }
+
+    setStatus(statusMessage);
     setPrimaryButtonLabel(true);
     setExtraPromptLabel(true);
   } finally {

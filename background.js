@@ -101,8 +101,8 @@ const PRICING_RATES = {
   },
   // Gemini 2.0 Flash
   "gemini-2.0-flash": {
-    input: { default: 0.15, audio: 1.00 },
-    output: { default: 0.60 }
+    input: { default: 0.10, audio: 0.70 },
+    output: { default: 0.40 }
   },
   // Gemini 2.0 Flash Lite
   "gemini-2.0-flash-lite": {
@@ -111,11 +111,11 @@ const PRICING_RATES = {
   }
 };
 
-function calculateCost(model, inputTokens, outputTokens) {
+function calculateCost(model, inputTokens, outputTokens, modalityDetails = null) {
   const rates = PRICING_RATES[model];
   if (!rates) {
     // 未知のモデルの場合はGemini 2.5 Flashの料金を使用
-    return calculateCost("gemini-2.5-flash", inputTokens, outputTokens);
+    return calculateCost("gemini-2.5-flash", inputTokens, outputTokens, modalityDetails);
   }
 
   let inputCost = 0;
@@ -124,14 +124,34 @@ function calculateCost(model, inputTokens, outputTokens) {
   // 入力トークンのコスト計算
   if (rates.input.threshold !== undefined) {
     // 閾値ベースの料金（例: ≤200K tokens = 低料金, >200K = 高料金）
+    // このタイプのモデル（Proなど）はmodality関係なく同じ料金
     if (inputTokens <= rates.input.threshold) {
       inputCost = (inputTokens / 1000000) * rates.input.low;
     } else {
       inputCost = (inputTokens / 1000000) * rates.input.high;
     }
   } else {
-    // 固定料金（音声は考慮せず、デフォルトを使用）
-    inputCost = (inputTokens / 1000000) * (rates.input.default || 0);
+    // 固定料金モデル（Flash系）: modalityDetailsがあれば詳細計算
+    if (modalityDetails?.promptTokensDetails && Array.isArray(modalityDetails.promptTokensDetails)) {
+      // Modality別に計算
+      for (const detail of modalityDetails.promptTokensDetails) {
+        const modality = detail.modality || "TEXT";
+        const tokenCount = detail.tokenCount || 0;
+
+        // AUDIO のみ特別料金、それ以外（TEXT/IMAGE/VIDEO）は default
+        if (modality === "AUDIO") {
+          const audioRate = rates.input.audio || rates.input.default || 0;
+          inputCost += (tokenCount / 1000000) * audioRate;
+        } else {
+          // TEXT, IMAGE, VIDEO は同じ料金
+          const defaultRate = rates.input.default || 0;
+          inputCost += (tokenCount / 1000000) * defaultRate;
+        }
+      }
+    } else {
+      // modalityDetailsがない場合は従来通りの計算
+      inputCost = (inputTokens / 1000000) * (rates.input.default || 0);
+    }
   }
 
   // 出力トークンのコスト計算
@@ -154,7 +174,9 @@ function calculateCost(model, inputTokens, outputTokens) {
     totalCost: inputCost + outputCost,
     inputTokens,
     outputTokens,
-    totalTokens: inputTokens + outputTokens
+    totalTokens: inputTokens + outputTokens,
+    // デバッグ用：modality別の詳細も返す
+    modalityBreakdown: modalityDetails?.promptTokensDetails || null
   };
 }
 
@@ -301,8 +323,14 @@ async function callGeminiGenerateContent({
   const outputTokens = usageMetadata.candidatesTokenCount || 0;
   const totalTokens = usageMetadata.totalTokenCount || (inputTokens + outputTokens);
 
-  // コスト計算
-  const costInfo = calculateCost(model, inputTokens, outputTokens);
+  // Modality別の詳細を抽出（利用可能な場合）
+  const modalityDetails = {
+    promptTokensDetails: usageMetadata.promptTokensDetails || null,
+    candidatesTokensDetails: usageMetadata.candidatesTokensDetails || null
+  };
+
+  // コスト計算（modality詳細を渡す）
+  const costInfo = calculateCost(model, inputTokens, outputTokens, modalityDetails);
 
   return {
     text,
