@@ -844,6 +844,26 @@ function renderDescription(description) {
     const htmlContent = simpleMarkdownToHtml(description);
     el.innerHTML = sanitizeHtml(htmlContent);
     details.style.display = "block";
+
+    // 説明部分でもKaTeXによる数式レンダリングを有効化
+    if (window.renderMathInElement) {
+      try {
+        window.renderMathInElement(el, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          throwOnError: false,
+          errorColor: "#cc0000",
+          strict: false
+        });
+        console.log("[PlayPage] Math rendered in description");
+      } catch (e) {
+        console.warn("[PlayPage] Failed to render math in description:", e);
+      }
+    }
   } else {
     el.innerHTML = t("pane.noDescription");
     details.style.display = "none";
@@ -2117,6 +2137,17 @@ async function init() {
     hasRenderMathInElement: typeof window.renderMathInElement !== "undefined",
     hasChart: typeof window.Chart !== "undefined"
   });
+
+  // KaTeX CSSをページ全体に注入（サイドパネルで数式を表示するため）
+  if (!document.getElementById("playpage-katex-css")) {
+    const katexCssUrl = chrome.runtime.getURL("libs/katex/katex.min.css");
+    const link = document.createElement("link");
+    link.id = "playpage-katex-css";
+    link.rel = "stylesheet";
+    link.href = katexCssUrl;
+    document.head.appendChild(link);
+    console.log("[PlayPage] KaTeX CSS injected into page");
+  }
 }
 
 init().catch((e) => console.warn("[PlayPage] init error:", e));
