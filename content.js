@@ -485,18 +485,25 @@ function injectKatexCssToIframe(iframeDoc) {
 }
 
 // iframe 内で数式をレンダリングする関数
-function renderMathInIframe(iframeDoc) {
+function renderMathInIframe(iframeDoc, iframeWin) {
   if (!iframeDoc) {
     console.warn("[PlayPage] renderMathInIframe: iframeDoc is null");
     return;
   }
 
+  if (!iframeDoc.body) {
+    console.warn("[PlayPage] renderMathInIframe: iframeDoc.body is null");
+    return;
+  }
+
+  const win = iframeWin || iframeDoc.defaultView || window;
+
   // renderMathInElementが利用可能か確認
-  if (!window.renderMathInElement) {
+  if (!win.renderMathInElement) {
     console.warn("[PlayPage] renderMathInElement is not available. KaTeX auto-render may not be loaded.");
     console.log("[PlayPage] Available globals:", {
-      hasKatex: typeof window.katex !== "undefined",
-      hasRenderMathInElement: typeof window.renderMathInElement !== "undefined"
+      hasKatex: typeof win.katex !== "undefined",
+      hasRenderMathInElement: typeof win.renderMathInElement !== "undefined"
     });
     return;
   }
@@ -504,7 +511,7 @@ function renderMathInIframe(iframeDoc) {
   try {
     // auto-render を使って $ $ で囲まれた数式をレンダリング
     console.log("[PlayPage] Rendering math in iframe...");
-    window.renderMathInElement(iframeDoc.body, {
+    win.renderMathInElement(iframeDoc.body, {
       delimiters: [
         { left: "$$", right: "$$", display: true },
         { left: "$", right: "$", display: false },
@@ -552,7 +559,7 @@ async function renderHtmlToIframe(html) {
 
         // 少し待ってから数式をレンダリング（CSS 読み込みのため）
         setTimeout(() => {
-          renderMathInIframe(iframeDoc);
+          renderMathInIframe(iframeDoc, iframeWin);
         }, 100);
       }
     } catch (e) {
@@ -1178,7 +1185,7 @@ function buildSidePane() {
               border:none;
               border-radius:10px;
             "
-            sandbox="allow-scripts allow-forms"
+            sandbox="allow-scripts allow-forms allow-same-origin"
           ></iframe>
           <div id="vm-iframe-resize-handle" style="
             position:absolute;
