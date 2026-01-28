@@ -1,30 +1,37 @@
-# PlayPage Privacy Policy
+# PlayPage プライバシーポリシー
 
-_Last updated: January 22, 2026_
+*最終更新日: 2026年1月22日*
 
-## 1. What we collect
-- **Page content you choose to process**: When you click “生成 / Generate”, the extension captures the HTML of the page you are viewing (trimmed to ~260 KB if very large) and sends it to the selected model provider (Gemini API or Vertex AI) to generate an app.
-- **Extension settings**: API keys, model names, prompts, language, and per-site prompt settings are stored locally in `chrome.storage.local`.
-- **Generated artifacts**: Generated app HTML, description, and history are stored locally in `chrome.storage.local`.
+## 1. 収集する情報
 
-## 2. How we use the data
-- Page HTML is used **only to request model output** from the selected provider and is not stored or transmitted elsewhere by the extension.
-- Settings and history stay on your device unless you explicitly export them.
+- **ユーザーが処理を指示したページ内容**: 「生成」を押すと、閲覧中ページのHTML（大きい場合はサイズ上限でトリム）を取得し、選択したプロバイダー（Gemini API または Vertex AI）へ送信してアプリを生成します。
+- **拡張機能の設定**: APIキー、モデル名、プロンプト、言語、サイト別プロンプト設定は `chrome.storage.local` にローカル保存されます。
+- **生成物**: 生成したアプリのHTML・説明・履歴を `chrome.storage.local` にローカル保存します。
 
-## 3. Where data goes
-- Page HTML is sent over HTTPS to Google’s Gemini API (`api.google.dev`) or Vertex AI (`*.aiplatform.googleapis.com`) depending on your provider choice.
-- No other third parties receive your data.
+## 2. 利用目的
 
-## 4. Retention
-- The extension does not retain page HTML after the model call completes.
-- Settings and generation history remain in your browser until you delete or reset them (Options → データ管理 / Data Management).
+- ページHTMLは、選択したプロバイダーに対するモデル呼び出しのためだけに使用し、拡張機能側で別途保存・第三者提供は行いません。
+- 設定と履歴はユーザーの端末上にのみ保持され、ユーザーが明示的にエクスポートした場合を除き外部に送信されません。
 
-## 5. Your choices
-- You must give one-time consent before any page HTML is sent. You can review or reset this consent in Options.
-- You may clear generation history or all stored data from Options at any time.
+## 3. 送信先
 
-## 6. Security
-- Requests are sent via HTTPS. App code runs in a sandboxed iframe with a restrictive Content Security Policy.
+- ページHTMLは、選択したプロバイダーに応じて Google の Gemini API（`api.google.dev`）または Vertex AI（`*.aiplatform.googleapis.com`）へ HTTPS で送信されます。
+- 上記以外の第三者へ送信することはありません。
 
-## 7. Contact
-- For questions or issues, please open an issue in the repository.
+## 4. 保持期間
+
+- ページHTMLはモデル呼び出し完了後、拡張機能側では保持しません。
+- 設定と生成履歴は、ユーザーが削除またはリセットするまでブラウザ内に残ります（Options → データ管理 で削除可能）。
+
+## 5. ユーザーの選択肢
+
+- ページHTML送信前に一度だけ同意を取得します。同意状況は Options で確認・リセットできます。
+- 生成履歴や全データを Options からいつでも削除できます。
+
+## 6. セキュリティ
+
+- 通信は HTTPS を利用します。生成したコードはサンドボックス化された `iframe` 内で、CSPの下で実行されます。
+
+## 7. 連絡先
+
+ご質問や問題がある場合は、X: [@kakira9618](https://x.com/kakira9618) までお問い合わせください。

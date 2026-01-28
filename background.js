@@ -461,8 +461,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
       if (msg?.type === "OPEN_PRIVACY") {
         const lang = msg.lang || "ja";
-        const file = lang === "ja" ? "privacy.html" : "privacy-en.html";
-        const url = chrome.runtime.getURL(file);
+        const url = lang === "ja"
+          ? "https://github.com/kakira9618/playpage/blob/master/PRIVACY.md"
+          : "https://github.com/kakira9618/playpage/blob/master/PRIVACY_EN.md";
         await chrome.tabs.create({ url });
         sendResponse({ ok: true });
         return;

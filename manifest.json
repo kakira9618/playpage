@@ -34,8 +34,6 @@
     {
       "resources": [
         "img/icon-48.png",
-        "privacy.html",
-        "privacy-en.html",
         "mathjax/tex-svg-full.js",
         "mathjax/config.js"
       ],

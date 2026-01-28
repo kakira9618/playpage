@@ -679,8 +679,9 @@ async function resetPrivacyConsent() {
 function openPrivacyPolicyPage() {
   const lang = currentLang || "ja";
   chrome.runtime.sendMessage({ type: "OPEN_PRIVACY", lang }).catch(() => {
-    const file = lang === "ja" ? "privacy.html" : "privacy-en.html";
-    const url = chrome.runtime.getURL(file);
+    const url = lang === "ja"
+      ? "https://github.com/kakira9618/playpage/blob/master/PRIVACY.md"
+      : "https://github.com/kakira9618/playpage/blob/master/PRIVACY_EN.md";
     window.open(url, "_blank", "noopener");
   });
 }
