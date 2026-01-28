@@ -1,5 +1,6 @@
 // i18n (Internationalization) module for PlayPage
 
+{
 const I18N_LANG_KEY = "vm_language";
 const DEFAULT_LANG = "ja";
 
@@ -466,4 +467,6 @@ if (typeof window !== 'undefined') {
     DEFAULT_LANG,
     I18N_LANG_KEY
   };
+}
+
 }
