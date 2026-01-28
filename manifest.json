@@ -46,6 +46,7 @@
       "js": [
         "libs/katex/katex.min.js",
         "libs/katex/contrib/auto-render.min.js",
+        "libs/chartjs/chart.min.js",
         "i18n.js",
         "content.js"
       ],

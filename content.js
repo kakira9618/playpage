@@ -105,6 +105,19 @@ function getDefaultPromptForLang(lang, type) {
 - mod 998244353 などで「有理数」の出力を求められた場合
   - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方表示すること
 
+【重要な制約】
+- 外部CDN（https://cdn.jsdelivr.net/, https://unpkg.com/ など）からのスクリプトやライブラリの読み込みは禁止です
+- <script src="https://..."></script> のような外部スクリプトタグは使用できません
+- すべてのコードをHTMLファイル内にインラインで記述してください
+
+【利用可能なライブラリ】
+以下のライブラリはすでに読み込まれており、グローバル変数として利用可能です：
+- Chart.js: グラフ描画用 (window.Chart)
+- KaTeX: 数式レンダリング用 (window.katex)
+  - 数式は $ $ または $$ $$ で囲むと自動レンダリングされます
+
+グラフを描画する場合はChart.jsを使ってください。数式を表示する場合は $ $ または $$ $$ で囲んでください。
+
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`;
   }
   return String.raw`Webページの内容が与えられるので、その内容を理解するためのインタラクティブなアプリをJavaScriptで作成してください。
@@ -114,6 +127,20 @@ function getDefaultPromptForLang(lang, type) {
 - ユーザーが操作できるインタラクティブな要素を含めること
 - 必要に応じて入力フォームや操作パネルを設けること
 - シンプルで使いやすいUIを心がけること
+
+【重要な制約】
+- 外部CDN（https://cdn.jsdelivr.net/, https://unpkg.com/ など）からのスクリプトやライブラリの読み込みは禁止です
+- <script src="https://..."></script> のような外部スクリプトタグは使用できません
+- すべてのコードをHTMLファイル内にインラインで記述してください
+
+【利用可能なライブラリ】
+以下のライブラリはすでに読み込まれており、グローバル変数として利用可能です：
+- Chart.js: グラフ描画用 (window.Chart)
+- KaTeX: 数式レンダリング用 (window.katex)
+  - 数式は $ $ または $$ $$ で囲むと自動レンダリングされます
+  - 例: $E = mc^2$ または $$\int_{0}^{\infty} e^{-x} dx = 1$$
+
+グラフを描画する場合はChart.jsを使ってください。数式を表示する場合は $ $ または $$ $$ で囲んでください（自動的にレンダリングされます）。
 
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`;
 }
@@ -504,7 +531,22 @@ async function renderHtmlToIframe(html) {
   iframe.addEventListener("load", () => {
     try {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (iframeDoc) {
+      const iframeWin = iframe.contentWindow;
+
+      if (iframeDoc && iframeWin) {
+        // 親ウィンドウのライブラリをiframe内で利用可能にする
+        if (window.Chart) {
+          iframeWin.Chart = window.Chart;
+          console.log("[PlayPage] Chart.js injected into iframe");
+        }
+        if (window.katex) {
+          iframeWin.katex = window.katex;
+          console.log("[PlayPage] KaTeX injected into iframe");
+        }
+        if (window.renderMathInElement) {
+          iframeWin.renderMathInElement = window.renderMathInElement;
+        }
+
         // KaTeX CSS を注入
         injectKatexCssToIframe(iframeDoc);
 
@@ -2069,10 +2111,11 @@ async function init() {
     currentLang = await window.I18N.getCurrentLanguage();
   }
 
-  // KaTeX ライブラリの読み込みを確認
-  console.log("[PlayPage] Checking KaTeX availability:", {
+  // ライブラリの読み込みを確認
+  console.log("[PlayPage] Checking library availability:", {
     hasKatex: typeof window.katex !== "undefined",
-    hasRenderMathInElement: typeof window.renderMathInElement !== "undefined"
+    hasRenderMathInElement: typeof window.renderMathInElement !== "undefined",
+    hasChart: typeof window.Chart !== "undefined"
   });
 }
 

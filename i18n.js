@@ -327,6 +327,19 @@ const defaultPrompts = {
 - mod 998244353 などで「有理数」の出力を求められた場合
   - 本来の出力（整数）と、有理数での出力（分数表記 1/3 など）を両方表示すること
 
+【重要な制約】
+- 外部CDN（https://cdn.jsdelivr.net/, https://unpkg.com/ など）からのスクリプトやライブラリの読み込みは禁止です
+- <script src="https://..."></script> のような外部スクリプトタグは使用できません
+- すべてのコードをHTMLファイル内にインラインで記述してください
+
+【利用可能なライブラリ】
+以下のライブラリはすでに読み込まれており、グローバル変数として利用可能です：
+- Chart.js: グラフ描画用 (window.Chart)
+- KaTeX: 数式レンダリング用 (window.katex)
+  - 数式は $ $ または $$ $$ で囲むと自動レンダリングされます
+
+グラフを描画する場合はChart.jsを使ってください。数式を表示する場合は $ $ または $$ $$ で囲んでください。
+
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`,
 
     generic: String.raw`Webページの内容が与えられるので、その内容を理解するためのインタラクティブなアプリをJavaScriptで作成してください。
@@ -336,6 +349,20 @@ const defaultPrompts = {
 - ユーザーが操作できるインタラクティブな要素を含めること
 - 必要に応じて入力フォームや操作パネルを設けること
 - シンプルで使いやすいUIを心がけること
+
+【重要な制約】
+- 外部CDN（https://cdn.jsdelivr.net/, https://unpkg.com/ など）からのスクリプトやライブラリの読み込みは禁止です
+- <script src="https://..."></script> のような外部スクリプトタグは使用できません
+- すべてのコードをHTMLファイル内にインラインで記述してください
+
+【利用可能なライブラリ】
+以下のライブラリはすでに読み込まれており、グローバル変数として利用可能です：
+- Chart.js: グラフ描画用 (window.Chart)
+- KaTeX: 数式レンダリング用 (window.katex)
+  - 数式は $ $ または $$ $$ で囲むと自動レンダリングされます
+  - 例: $E = mc^2$ または $$\int_{0}^{\infty} e^{-x} dx = 1$$
+
+グラフを描画する場合はChart.jsを使ってください。数式を表示する場合は $ $ または $$ $$ で囲んでください（自動的にレンダリングされます）。
 
 アプリの説明（descriptionフィールド）は必ず日本語で記述してください。`
   },
@@ -353,6 +380,19 @@ The visual representation is up to you, but pay attention to the following:
 - When the output requires "rational numbers" with mod 998244353 etc.
   - Display both the original output (integer) and the rational number output (fraction notation like 1/3)
 
+【IMPORTANT CONSTRAINTS】
+- Loading scripts or libraries from external CDNs (https://cdn.jsdelivr.net/, https://unpkg.com/, etc.) is PROHIBITED
+- External script tags like <script src="https://..."></script> are NOT allowed
+- All code must be written inline within the HTML file
+
+【AVAILABLE LIBRARIES】
+The following libraries are already loaded and available as global variables:
+- Chart.js: For drawing graphs (window.Chart)
+- KaTeX: For rendering mathematical expressions (window.katex)
+  - Math expressions enclosed in $ $ or $$ $$ will be automatically rendered
+
+If you need to draw graphs, use Chart.js. If you need to display mathematical expressions, enclose them in $ $ or $$ $$.
+
 The app description (description field) must be written in English.`,
 
     generic: String.raw`Given the content of a web page, create an interactive JavaScript app to help understand the content.
@@ -362,6 +402,20 @@ Please note the following:
 - Include interactive elements that users can manipulate
 - Add input forms or control panels as needed
 - Keep the UI simple and easy to use
+
+【IMPORTANT CONSTRAINTS】
+- Loading scripts or libraries from external CDNs (https://cdn.jsdelivr.net/, https://unpkg.com/, etc.) is PROHIBITED
+- External script tags like <script src="https://..."></script> are NOT allowed
+- All code must be written inline within the HTML file
+
+【AVAILABLE LIBRARIES】
+The following libraries are already loaded and available as global variables:
+- Chart.js: For drawing graphs (window.Chart)
+- KaTeX: For rendering mathematical expressions (window.katex)
+  - Math expressions enclosed in $ $ or $$ $$ will be automatically rendered
+  - Example: $E = mc^2$ or $$\int_{0}^{\infty} e^{-x} dx = 1$$
+
+If you need to draw graphs, use Chart.js. If you need to display mathematical expressions, enclose them in $ $ or $$ $$ (they will be automatically rendered).
 
 The app description (description field) must be written in English.`
   }
