@@ -11,8 +11,6 @@ const STORE_PREFIX = "vm_store_v1";
 const COST_HISTORY_KEY = "vm_cost_history_v1";
 
 const SIDE_PANE_ID = "vm-side-pane";
-const MATHJAX_BUNDLE_PATH = "mathjax/tex-svg-full.js";
-const MATHJAX_CONFIG_PATH = "mathjax/config.js";
 
 // 生成中フラグ（UIの折りたたみによる中断を防ぐため）
 let isGenerating = false;
@@ -434,48 +432,10 @@ function injectCspIfMissing(html) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"></head><body>${html}</body></html>`;
 }
 
-function maybeHasMath(html) {
-  if (!html) return false;
-  return /(?:\$\$[\s\S]+?\$\$)|(?:\$[^$\n]+\$)|(?:\\\([^)]*\\\))|(?:\\\[[\s\S]*?\\\])|(<math[\s>])/i.test(
-    html
-  );
-}
-
-async function injectMathJax(html) {
-  if (!maybeHasMath(html)) return html;
-
-  const configSrc = chrome.runtime.getURL(MATHJAX_CONFIG_PATH);
-  const bundleSrc = chrome.runtime.getURL(MATHJAX_BUNDLE_PATH);
-
-  const scripts = `
-    <script src="${configSrc}" defer></script>
-    <script src="${bundleSrc}" defer></script>
-  `;
-
-  let out = html;
-
-  if (/<head[^>]*>/i.test(out)) {
-    out = out.replace(/<head[^>]*>/i, (m) => `${m}\n${scripts}\n`);
-  } else {
-    const hasBody = /<body[^>]*>/i.test(out);
-    out = `<!doctype html><html><head>${scripts}</head>${hasBody ? "" : "<body>"}${out}${
-      hasBody ? "" : "</body>"
-    }</html>`;
-  }
-
-  return out;
-}
-
 async function renderHtmlToIframe(html) {
   const iframe = document.getElementById("vm-iframe");
   if (!iframe) return;
-  let finalHtml = html || "";
-  try {
-    finalHtml = await injectMathJax(finalHtml);
-  } catch (e) {
-    console.warn("MathJax injection skipped due to error:", e);
-  }
-  iframe.srcdoc = injectCspIfMissing(finalHtml);
+  iframe.srcdoc = injectCspIfMissing(html || "");
 }
 
 // 選択範囲のHTMLを取得
@@ -1075,7 +1035,7 @@ function buildSidePane() {
               border:none;
               border-radius:10px;
             "
-            sandbox="allow-scripts allow-same-origin allow-forms"
+            sandbox="allow-scripts allow-forms"
           ></iframe>
           <div id="vm-iframe-resize-handle" style="
             position:absolute;

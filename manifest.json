@@ -33,9 +33,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "img/icon-48.png",
-        "mathjax/tex-svg-full.js",
-        "mathjax/config.js"
+        "img/icon-48.png"
       ],
       "matches": ["<all_urls>"]
     }

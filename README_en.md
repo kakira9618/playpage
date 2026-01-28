@@ -24,7 +24,7 @@ No need to copy and paste into chat tools. Execute with one button, and everythi
 - **Instant Generation & Embedding**: Fast app construction using Gemini 3 Pro / Flash
 - **Multiple Provider Support**: Choose from Gemini API, Vertex AI Express Mode, or Vertex AI Standard (OAuth)
 - **Layout Controls**: Drag to resize the side pane width and iframe height, switch between floating and page-shrinking modes, and toggle fullscreen for the app area
-- **PDF / Math Aware**: Detects PDF pages, attaches the PDF binary to the AI request, and auto-injects MathJax to render LaTeX/MathML
+- **PDF Aware**: Detects PDF pages and attaches the PDF binary to the AI request
 - **Interactive Improvement**: Enhance apps with additional instructions like "add animations" or "make it more interactive"
 - **Version Control**: Instantly switch between previously generated apps via dropdown
 - **Cost Management**: Automatically calculate and display token usage and estimated costs per generation, with monthly cumulative totals (estimates only)
