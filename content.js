@@ -459,10 +459,24 @@ function injectKatexCssToIframe(iframeDoc) {
 
 // iframe 内で数式をレンダリングする関数
 function renderMathInIframe(iframeDoc) {
-  if (!iframeDoc || !window.renderMathInElement) return;
+  if (!iframeDoc) {
+    console.warn("[PlayPage] renderMathInIframe: iframeDoc is null");
+    return;
+  }
+
+  // renderMathInElementが利用可能か確認
+  if (!window.renderMathInElement) {
+    console.warn("[PlayPage] renderMathInElement is not available. KaTeX auto-render may not be loaded.");
+    console.log("[PlayPage] Available globals:", {
+      hasKatex: typeof window.katex !== "undefined",
+      hasRenderMathInElement: typeof window.renderMathInElement !== "undefined"
+    });
+    return;
+  }
 
   try {
     // auto-render を使って $ $ で囲まれた数式をレンダリング
+    console.log("[PlayPage] Rendering math in iframe...");
     window.renderMathInElement(iframeDoc.body, {
       delimiters: [
         { left: "$$", right: "$$", display: true },
@@ -474,6 +488,7 @@ function renderMathInIframe(iframeDoc) {
       errorColor: "#cc0000",
       strict: false
     });
+    console.log("[PlayPage] Math rendering completed successfully");
   } catch (e) {
     console.warn("[PlayPage] KaTeX rendering error:", e);
   }
@@ -2053,6 +2068,12 @@ async function init() {
   if (window.I18N) {
     currentLang = await window.I18N.getCurrentLanguage();
   }
+
+  // KaTeX ライブラリの読み込みを確認
+  console.log("[PlayPage] Checking KaTeX availability:", {
+    hasKatex: typeof window.katex !== "undefined",
+    hasRenderMathInElement: typeof window.renderMathInElement !== "undefined"
+  });
 }
 
 init().catch((e) => console.warn("[PlayPage] init error:", e));
