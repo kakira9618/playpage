@@ -25,6 +25,7 @@ No need to copy and paste into chat tools. Execute with one button, and everythi
 - **Multiple Provider Support**: Choose from Gemini API, Vertex AI Express Mode, or Vertex AI Standard (OAuth)
 - **Layout Controls**: Drag to resize the side pane width and iframe height, switch between floating and page-shrinking modes, and toggle fullscreen for the app area
 - **PDF Aware**: Detects PDF pages and attaches the PDF binary to the AI request
+- **Math Rendering**: Automatically renders mathematical expressions enclosed in `$ $` or `$$ $$` using KaTeX in Gemini-generated apps
 - **Interactive Improvement**: Enhance apps with additional instructions like "add animations" or "make it more interactive"
 - **Version Control**: Instantly switch between previously generated apps via dropdown
 - **Cost Management**: Automatically calculate and display token usage and estimated costs per generation, with monthly cumulative totals (estimates only)

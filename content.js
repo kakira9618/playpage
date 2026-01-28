@@ -420,8 +420,9 @@ function injectCspIfMissing(html) {
   if (hasCsp) return html;
 
   // Block network; allow only self / extension resources and data/blob for scripts (for srcdoc/data URIs)
+  // KaTeX fonts and styles are allowed via chrome-extension:
   const csp =
-    "default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline' 'self' chrome-extension: data: blob:";
+    "default-src 'none'; img-src data:; font-src data: chrome-extension:; style-src 'unsafe-inline' chrome-extension:; script-src 'unsafe-inline' 'self' chrome-extension: data: blob:";
 
   if (/<head[^>]*>/i.test(html)) {
     return html.replace(
@@ -432,10 +433,75 @@ function injectCspIfMissing(html) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"></head><body>${html}</body></html>`;
 }
 
+// KaTeX CSS を iframe に注入する関数
+function injectKatexCssToIframe(iframeDoc) {
+  if (!iframeDoc) return;
+
+  // 既に注入済みか確認
+  if (iframeDoc.getElementById("katex-css-injected")) return;
+
+  // KaTeX CSS を追加
+  const katexCssUrl = chrome.runtime.getURL("libs/katex/katex.min.css");
+  const link = iframeDoc.createElement("link");
+  link.id = "katex-css-injected";
+  link.rel = "stylesheet";
+  link.href = katexCssUrl;
+
+  if (iframeDoc.head) {
+    iframeDoc.head.appendChild(link);
+  } else {
+    // head がまだない場合は、DOMContentLoaded を待つ
+    const head = iframeDoc.createElement("head");
+    iframeDoc.documentElement.insertBefore(head, iframeDoc.body);
+    head.appendChild(link);
+  }
+}
+
+// iframe 内で数式をレンダリングする関数
+function renderMathInIframe(iframeDoc) {
+  if (!iframeDoc || !window.renderMathInElement) return;
+
+  try {
+    // auto-render を使って $ $ で囲まれた数式をレンダリング
+    window.renderMathInElement(iframeDoc.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      errorColor: "#cc0000",
+      strict: false
+    });
+  } catch (e) {
+    console.warn("[PlayPage] KaTeX rendering error:", e);
+  }
+}
+
 async function renderHtmlToIframe(html) {
   const iframe = document.getElementById("vm-iframe");
   if (!iframe) return;
+
   iframe.srcdoc = injectCspIfMissing(html || "");
+
+  // iframe の読み込みを待ってから数式をレンダリング
+  iframe.addEventListener("load", () => {
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc) {
+        // KaTeX CSS を注入
+        injectKatexCssToIframe(iframeDoc);
+
+        // 少し待ってから数式をレンダリング（CSS 読み込みのため）
+        setTimeout(() => {
+          renderMathInIframe(iframeDoc);
+        }, 100);
+      }
+    } catch (e) {
+      console.warn("[PlayPage] Failed to render math in iframe:", e);
+    }
+  }, { once: true });
 }
 
 // 選択範囲のHTMLを取得

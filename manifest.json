@@ -33,9 +33,23 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "img/icon-48.png"
+        "img/icon-48.png",
+        "libs/katex/katex.min.css",
+        "libs/katex/fonts/*"
       ],
       "matches": ["<all_urls>"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "libs/katex/katex.min.js",
+        "libs/katex/contrib/auto-render.min.js",
+        "i18n.js",
+        "content.js"
+      ],
+      "run_at": "document_end"
     }
   ]
 }
