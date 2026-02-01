@@ -460,28 +460,66 @@ function injectCspIfMissing(html) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"></head><body>${html}</body></html>`;
 }
 
-// KaTeX CSS を iframe に注入する関数
-function injectKatexCssToIframe(iframeDoc) {
-  if (!iframeDoc) return;
+let katexCssTextCache = null;
+let katexCssTextPromise = null;
 
-  // 既に注入済みか確認
-  if (iframeDoc.getElementById("katex-css-injected")) return;
+function absolutizeKatexFontUrls(cssText) {
+  if (!cssText) return cssText;
+  const base = chrome.runtime.getURL("libs/katex/");
+  return cssText.replace(/url\((['"]?)(fonts\/[^'")]+)\1\)/g, (_m, q, path) => {
+    return `url(${q}${base}${path}${q})`;
+  });
+}
 
-  // KaTeX CSS を追加
-  const katexCssUrl = chrome.runtime.getURL("libs/katex/katex.min.css");
-  const link = iframeDoc.createElement("link");
-  link.id = "katex-css-injected";
-  link.rel = "stylesheet";
-  link.href = katexCssUrl;
-
-  if (iframeDoc.head) {
-    iframeDoc.head.appendChild(link);
-  } else {
-    // head がまだない場合は、DOMContentLoaded を待つ
-    const head = iframeDoc.createElement("head");
-    iframeDoc.documentElement.insertBefore(head, iframeDoc.body);
-    head.appendChild(link);
+async function getKatexCssText() {
+  if (katexCssTextCache) return katexCssTextCache;
+  if (!katexCssTextPromise) {
+    const katexCssUrl = chrome.runtime.getURL("libs/katex/katex.min.css");
+    katexCssTextPromise = fetch(katexCssUrl)
+      .then((res) => (res.ok ? res.text() : ""))
+      .then((text) => absolutizeKatexFontUrls(text))
+      .catch(() => "");
   }
+  katexCssTextCache = await katexCssTextPromise;
+  return katexCssTextCache;
+}
+
+function injectKatexCssToHtml(html, cssText) {
+  if (!cssText) return html;
+  if (/id=["']playpage-katex-inline["']/i.test(html)) return html;
+
+  const styleTag = `<style id="playpage-katex-inline">${cssText}</style>`;
+
+  if (/<head[^>]*>/i.test(html)) {
+    return html.replace(/<head[^>]*>/i, (m) => `${m}\n${styleTag}\n`);
+  }
+  return `<!doctype html><html><head><meta charset="utf-8">${styleTag}</head><body>${html}</body></html>`;
+}
+
+function escapeInlineScript(text) {
+  return text.replace(/<\/script>/gi, "<\\/script>");
+}
+
+function injectScriptsToHtml(html, scripts) {
+  const pending = scripts.filter(
+    (s) =>
+      (s.src || s.text) &&
+      s.id &&
+      !new RegExp(`id=["']${s.id}["']`, "i").test(html)
+  );
+  if (!pending.length) return html;
+
+  const scriptTags = pending
+    .map((s) => {
+      if (s.src) return `<script id="${s.id}" src="${s.src}"></script>`;
+      return `<script id="${s.id}">${escapeInlineScript(s.text || "")}</script>`;
+    })
+    .join("\n");
+
+  if (/<head[^>]*>/i.test(html)) {
+    return html.replace(/<head[^>]*>/i, (m) => `${m}\n${scriptTags}\n`);
+  }
+  return `<!doctype html><html><head><meta charset="utf-8">${scriptTags}</head><body>${html}</body></html>`;
 }
 
 // iframe 内で数式をレンダリングする関数
@@ -532,40 +570,55 @@ async function renderHtmlToIframe(html) {
   const iframe = document.getElementById("vm-iframe");
   if (!iframe) return;
 
-  iframe.srcdoc = injectCspIfMissing(html || "");
+  const katexCssText = await getKatexCssText();
+  const katexJsUrl = chrome.runtime.getURL("libs/katex/katex.min.js");
+  const katexAutoRenderJsUrl = chrome.runtime.getURL("libs/katex/contrib/auto-render.min.js");
+  const chartJsUrl = chrome.runtime.getURL("libs/chartjs/chart.min.js");
+  const katexBootstrapScript = String.raw`(function () {
+  const options = {
+    delimiters: [
+      { left: "$$", right: "$$", display: true },
+      { left: "$", right: "$", display: false },
+      { left: "\\\\[", right: "\\\\]", display: true },
+      { left: "\\\\(", right: "\\\\)", display: false }
+    ],
+    throwOnError: false,
+    errorColor: "#cc0000",
+    strict: false
+  };
 
-  // iframe の読み込みを待ってから数式をレンダリング
-  iframe.addEventListener("load", () => {
+  function tryRender() {
+    if (typeof window.renderMathInElement !== "function") return false;
+    if (!document.body) return false;
     try {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      const iframeWin = iframe.contentWindow;
-
-      if (iframeDoc && iframeWin) {
-        // 親ウィンドウのライブラリをiframe内で利用可能にする
-        if (window.Chart) {
-          iframeWin.Chart = window.Chart;
-          console.log("[PlayPage] Chart.js injected into iframe");
-        }
-        if (window.katex) {
-          iframeWin.katex = window.katex;
-          console.log("[PlayPage] KaTeX injected into iframe");
-        }
-        if (window.renderMathInElement) {
-          iframeWin.renderMathInElement = window.renderMathInElement;
-        }
-
-        // KaTeX CSS を注入
-        injectKatexCssToIframe(iframeDoc);
-
-        // 少し待ってから数式をレンダリング（CSS 読み込みのため）
-        setTimeout(() => {
-          renderMathInIframe(iframeDoc, iframeWin);
-        }, 100);
-      }
-    } catch (e) {
-      console.warn("[PlayPage] Failed to render math in iframe:", e);
+      window.renderMathInElement(document.body, options);
+    } catch (_e) {
+      return false;
     }
-  }, { once: true });
+    return true;
+  }
+
+  let tries = 0;
+  function wait() {
+    if (tryRender()) return;
+    if (tries++ < 20) setTimeout(wait, 50);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(wait, 0), { once: true });
+  } else {
+    setTimeout(wait, 0);
+  }
+})();`;
+  let srcdoc = injectCspIfMissing(html || "");
+  srcdoc = injectKatexCssToHtml(srcdoc, katexCssText);
+  srcdoc = injectScriptsToHtml(srcdoc, [
+    { id: "playpage-katex-js", src: katexJsUrl },
+    { id: "playpage-katex-autorender-js", src: katexAutoRenderJsUrl },
+    { id: "playpage-chart-js", src: chartJsUrl },
+    { id: "playpage-katex-bootstrap", text: katexBootstrapScript }
+  ]);
+  iframe.srcdoc = srcdoc;
 }
 
 // 選択範囲のHTMLを取得
@@ -1185,7 +1238,7 @@ function buildSidePane() {
               border:none;
               border-radius:10px;
             "
-            sandbox="allow-scripts allow-forms allow-same-origin"
+            sandbox="allow-scripts allow-forms"
           ></iframe>
           <div id="vm-iframe-resize-handle" style="
             position:absolute;
@@ -2138,23 +2191,6 @@ async function init() {
     currentLang = await window.I18N.getCurrentLanguage();
   }
 
-  // ライブラリの読み込みを確認
-  console.log("[PlayPage] Checking library availability:", {
-    hasKatex: typeof window.katex !== "undefined",
-    hasRenderMathInElement: typeof window.renderMathInElement !== "undefined",
-    hasChart: typeof window.Chart !== "undefined"
-  });
-
-  // KaTeX CSSをページ全体に注入（サイドパネルで数式を表示するため）
-  if (!document.getElementById("playpage-katex-css")) {
-    const katexCssUrl = chrome.runtime.getURL("libs/katex/katex.min.css");
-    const link = document.createElement("link");
-    link.id = "playpage-katex-css";
-    link.rel = "stylesheet";
-    link.href = katexCssUrl;
-    document.head.appendChild(link);
-    console.log("[PlayPage] KaTeX CSS injected into page");
-  }
 }
 
 init().catch((e) => console.warn("[PlayPage] init error:", e));
