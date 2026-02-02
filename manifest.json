@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PlayPage",
   "short_name": "PlayPage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI (Gemini) を使用して、Webページのコンテンツを即席アプリ化するChrome拡張機能です。",
   "permissions": ["storage", "activeTab", "scripting", "identity"],
   "host_permissions": [
