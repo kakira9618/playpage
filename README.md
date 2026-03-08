@@ -64,7 +64,7 @@ AI（Gemini）を使用して、閲覧中のWebページの内容を解析し、
    - プロジェクトを作成（または既存のプロジェクトを選択）
    - Vertex AI APIを有効化
    - [認証情報ページ](https://console.cloud.google.com/apis/credentials) で「APIキー」を作成
-4. 取得したAPIキーを入力し、モデル名（推奨: `gemini-3-pro-preview`）を設定します。
+4. 取得したAPIキーを入力し、モデル名（推奨: `gemini-3.1-pro-preview`）を設定します。
 5. 「保存」をクリックし、「接続テスト」で動作を確認します。
 
 **特徴**: 90日間の無料トライアルが利用可能で、Gemini APIと同じくAPIキーだけで簡単に使えます。

@@ -62,7 +62,7 @@ This extension supports **3 different providers** to choose from:
    - Create a project (or select an existing one)
    - Enable the Vertex AI API
    - Create an "API Key" on the [Credentials page](https://console.cloud.google.com/apis/credentials)
-4. Enter the API key and set the model name (recommended: `gemini-3-pro-preview`).
+4. Enter the API key and set the model name (recommended: `gemini-3.1-pro-preview`).
 5. Click "Save" and run a "Test Connection" to verify it works.
 
 **Features**: Offers a 90-day free trial and is as simple to use as Gemini API with just an API key.

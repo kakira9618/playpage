@@ -71,6 +71,15 @@ function extractCandidateText(apiJson) {
   return texts.join("\n").trim();
 }
 
+function normalizeGeminiModelName(model) {
+  const legacyMap = {
+    "gemini-3-pro-preview": "gemini-3.1-pro-preview",
+    "gemini-3-flash-preview": "gemini-3.1-flash-preview",
+    "gemini-3-flash-lite-preview": "gemini-3.1-flash-lite-preview"
+  };
+  return legacyMap[model] || model;
+}
+
 // Gemini API料金レート (per million tokens)
 // Note: Vertex AI Express Mode and Standard use the same pricing as Gemini API
 const PRICING_RATES = {
@@ -90,14 +99,19 @@ const PRICING_RATES = {
     output: { default: 0.40 }
   },
   // Gemini 3 Pro プレビュー
-  "gemini-3-pro-preview": {
+  "gemini-3.1-pro-preview": {
     input: { threshold: 200000, low: 2.00, high: 4.00 },
     output: { threshold: 200000, low: 12.00, high: 18.00 }
   },
   // Gemini 3 Flash プレビュー
-  "gemini-3-flash-preview": {
+  "gemini-3.1-flash-preview": {
     input: { default: 0.50, audio: 1.00 },
     output: { default: 3.00 }
+  },
+  // Gemini 3.1 Flash-Lite プレビュー
+  "gemini-3.1-flash-lite-preview": {
+    input: { default: 0.10, audio: 0.30 },
+    output: { default: 0.40 }
   },
   // Gemini 2.0 Flash
   "gemini-2.0-flash": {
@@ -379,7 +393,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const provider = msg.provider || "gemini-api";
         let callParams = {
           provider,
-          model: msg.model,
+          model: normalizeGeminiModelName(msg.model),
           promptText: 'Return JSON only. {"title":"","html":"<!doctype html><html><body>ok</body></html>"}'
         };
 
@@ -417,17 +431,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
         if (provider === "gemini-api") {
           callParams.apiKey = s.apiKey;
-          callParams.model = s.model || "gemini-3-pro-preview";
+          callParams.model = normalizeGeminiModelName(s.model || "gemini-3.1-pro-preview");
           if (!callParams.apiKey) throw new Error("API Key is not set. Open extension options.");
         } else if (provider === "vertex-express") {
           callParams.apiKey = s.vertexApiKey;
-          callParams.model = s.vertexModel || "gemini-3-pro-preview";
+          callParams.model = normalizeGeminiModelName(s.vertexModel || "gemini-3.1-pro-preview");
           if (!callParams.apiKey) throw new Error("API Key is not set. Open extension options.");
         } else if (provider === "vertex-standard") {
           callParams.projectId = s.vertexProjectId;
           callParams.location = s.vertexLocation;
           callParams.accessToken = s.vertexAccessToken;
-          callParams.model = s.vertexStandardModel || "gemini-2.5-pro";
+          callParams.model = normalizeGeminiModelName(s.vertexStandardModel || "gemini-2.5-pro");
 
           // Check token expiry
           if (!callParams.accessToken || Date.now() >= (s.vertexTokenExpiry || 0)) {

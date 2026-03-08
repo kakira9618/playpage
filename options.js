@@ -9,6 +9,15 @@ let currentLang = "ja";
 // Site prompts data
 let sitePrompts = [];
 
+function normalizeGeminiModelName(model) {
+  const legacyMap = {
+    "gemini-3-pro-preview": "gemini-3.1-pro-preview",
+    "gemini-3-flash-preview": "gemini-3.1-flash-preview",
+    "gemini-3-flash-lite-preview": "gemini-3.1-flash-lite-preview"
+  };
+  return legacyMap[model] || model;
+}
+
 function storageGet(key) {
   return new Promise((resolve) => chrome.storage.local.get([key], resolve));
 }
@@ -359,11 +368,11 @@ async function load() {
 
   // Load Gemini API settings
   document.getElementById("apiKey").value = s.apiKey || "";
-  document.getElementById("model").value = s.model || "gemini-3-pro-preview";
+  document.getElementById("model").value = normalizeGeminiModelName(s.model || "gemini-3.1-pro-preview");
 
   // Load Vertex AI Express settings
   document.getElementById("vertexApiKey").value = s.vertexApiKey || "";
-  document.getElementById("vertexModel").value = s.vertexModel || "gemini-3-pro-preview";
+  document.getElementById("vertexModel").value = normalizeGeminiModelName(s.vertexModel || "gemini-3.1-pro-preview");
 
   // Load Vertex AI Standard settings
   document.getElementById("vertexProjectId").value = s.vertexProjectId || "";
@@ -410,13 +419,13 @@ async function load() {
 async function save() {
   const provider = document.querySelector('input[name="provider"]:checked')?.value || "gemini-api";
   const apiKey = document.getElementById("apiKey").value.trim();
-  const model = document.getElementById("model").value.trim() || "gemini-3-pro-preview";
+  const model = normalizeGeminiModelName(document.getElementById("model").value.trim() || "gemini-3.1-pro-preview");
   const vertexApiKey = document.getElementById("vertexApiKey").value.trim();
-  const vertexModel = document.getElementById("vertexModel").value.trim() || "gemini-3-pro-preview";
+  const vertexModel = normalizeGeminiModelName(document.getElementById("vertexModel").value.trim() || "gemini-3.1-pro-preview");
   const vertexProjectId = document.getElementById("vertexProjectId").value.trim();
   const vertexLocation = document.getElementById("vertexLocation").value.trim() || "us-central1";
   const vertexOAuthClientId = document.getElementById("vertexOAuthClientId").value.trim();
-  const vertexStandardModel = document.getElementById("vertexStandardModel").value.trim() || "gemini-2.5-pro";
+  const vertexStandardModel = normalizeGeminiModelName(document.getElementById("vertexStandardModel").value.trim() || "gemini-2.5-pro");
   const promptBaseGeneric = document.getElementById("promptBaseGeneric").value;
 
   // Collect site prompts from UI
@@ -693,10 +702,10 @@ async function test() {
   let apiKey, model;
   if (provider === "gemini-api") {
     apiKey = document.getElementById("apiKey").value.trim();
-    model = document.getElementById("model").value.trim() || "gemini-3-pro-preview";
+    model = normalizeGeminiModelName(document.getElementById("model").value.trim() || "gemini-3.1-pro-preview");
   } else if (provider === "vertex-express") {
     apiKey = document.getElementById("vertexApiKey").value.trim();
-    model = document.getElementById("vertexModel").value.trim() || "gemini-3-pro-preview";
+    model = normalizeGeminiModelName(document.getElementById("vertexModel").value.trim() || "gemini-3.1-pro-preview");
   } else if (provider === "vertex-standard") {
     // For vertex-standard, check if we have a valid token
     const got = await storageGet(STORAGE_KEY);
@@ -706,7 +715,7 @@ async function test() {
       return;
     }
     // Token will be retrieved by background script
-    model = document.getElementById("vertexStandardModel").value.trim() || "gemini-2.5-pro";
+    model = normalizeGeminiModelName(document.getElementById("vertexStandardModel").value.trim() || "gemini-2.5-pro");
   }
 
   if (!apiKey && provider !== "vertex-standard") {
